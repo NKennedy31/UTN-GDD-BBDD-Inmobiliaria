@@ -12,4 +12,4 @@ El Trabajo Práctico consiste en:
 
 ## Modelo Transaccional
 
-![modelo_transaccional]()
+![modelo_transaccional](https://github.com/NKennedy31/UTN-GDD-BBDD-Inmobiliaria/blob/main/DER/DER%20FINAL.jpg)
