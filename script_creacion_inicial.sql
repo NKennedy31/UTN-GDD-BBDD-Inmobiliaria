@@ -2,11 +2,11 @@ USE [GD2C2023]
 GO
 
 -------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------Sección 2--------------------------------------------------------
+--------------------------------------------------------SecciÃ³n 2--------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------
 
--- Esta sección consiste en la creeación del Esquema, Tablas y sus respectivos Constraints
--- Dado que es posible que eventualmente se quieran crear tablas que referencian tablas que aún no fueron creadas
+-- Esta secciÃ³n consiste en la creeaciÃ³n del Esquema, Tablas y sus respectivos Constraints
+-- Dado que es posible que eventualmente se quieran crear tablas que referencian tablas que aÃºn no fueron creadas
 -- Las Foreign Keys son declaradas posteriormente mediante Alter Tables.
 
 
@@ -75,6 +75,49 @@ CREATE TABLE GESTIONATE.agente(
 );
 GO
 
+CREATE TABLE GESTIONATE.tipo_inmueble(
+	id_tipo_inmueble CHAR(3) PRIMARY KEY,
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.ambiente(
+	id_ambiente CHAR(10) PRIMARY KEY,
+	cantidad_ambientes VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.propietario(
+	id_propietario CHAR(10) PRIMARY KEY,
+	nombre VARCHAR(100),
+	apellido VARCHAR(100),
+	numero_doc VARCHAR(100),
+	tipo_doc CHAR(3),
+	telefono VARCHAR(100),
+	mail VARCHAR(100),
+	fecha_nacimiento DATE,
+	fecha_registro DATETIME,
+);
+GO
+
+CREATE TABLE GESTIONATE.orientacion(
+	id_orientacion CHAR(3) PRIMARY KEY,
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.disposicion(
+	id_disposicion CHAR(3) PRIMARY KEY,
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.estado_inmueble(
+	id_estado_inmueble CHAR(3) PRIMARY KEY,
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
 CREATE TABLE GESTIONATE.inmueble(
 	id_inmueble CHAR(10) PRIMARY KEY,
 	--id_anucio CHAR(10) REFERENCES GESTIONATE.anuncio, HAY QUE REVISAR ESTO
@@ -82,7 +125,7 @@ CREATE TABLE GESTIONATE.inmueble(
 	descripcion VARCHAR(100),
 	id_propietario CHAR(10) REFERENCES GESTIONATE.propietario,
 	id_direccion CHAR(10) REFERENCES GESTIONATE.direccion,
-	ambientes VARCHAR(100),
+	id_ambiente CHAR(10) REFERENCES GESTIONATE.ambiente,
 	superficie_total NUMERIC(18,2),
 	id_disposicion CHAR(3) REFERENCES GESTIONATE.disposicion,
 	id_orientacion CHAR(3) REFERENCES GESTIONATE.orientacion,
@@ -92,6 +135,17 @@ CREATE TABLE GESTIONATE.inmueble(
 );
 GO
 
+CREATE TABLE GESTIONATE.caracteristica(
+	id_caracteristica CHAR(3) PRIMARY KEY,
+	detalle VARCHAR(100)
+);
+GO
+
+CREATE TABLE GESTIONATE.caracteristica_x_inmueble(
+	id_inmueble CHAR(10) REFERENCES GESTIONATE.inmueble,
+	id_caracteristica CHAR(3) REFERENCES GESTIONATE.caracteristica
+);
+GO
 
 CREATE TABLE GESTIONATE.moneda(
 	id_moneda CHAR(3) PRIMARY KEY,
@@ -121,7 +175,7 @@ CREATE TABLE GESTIONATE.anuncio(
 	id_anuncio CHAR(10) PRIMARY KEY,
 	id_agente CHAR(10) REFERENCES GESTIONATE.agente,
 	id_tipo_operacion CHAR(3) REFERENCES GESTIONATE.tipo_operacion,
-	id_inmueble CHAR(3) REFERENCES GESTIONATE.inmueble,
+	id_inmueble CHAR(10) REFERENCES GESTIONATE.inmueble,
 	precio NUMERIC(18,2) NOT NULL,
 	id_moneda CHAR(3) REFERENCES GESTIONATE.moneda,
 	id_tipo_periodo CHAR(3) REFERENCES GESTIONATE.tipo_periodo,
@@ -131,3 +185,4 @@ CREATE TABLE GESTIONATE.anuncio(
 	costo_publicacion NUMERIC(18,2) NOT NULL
 );
 GO
+
