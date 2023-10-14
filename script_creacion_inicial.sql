@@ -6,9 +6,6 @@ GO
 -------------------------------------------------------------------------------------------------------------------------
 
 -- Esta sección consiste en la creeación del Esquema, Tablas y sus respectivos Constraints
--- Dado que es posible que eventualmente se quieran crear tablas que referencian tablas que aún no fueron creadas
--- Las Foreign Keys son declaradas posteriormente mediante Alter Tables.
-
 
 -- CREACION DEL ESQUEMA
 
@@ -186,3 +183,113 @@ CREATE TABLE GESTIONATE.anuncio(
 );
 GO
 
+CREATE TABLE GESTIONATE.estado_alquiler(
+	id_estado_alquiler CHAR(3) PRIMARY KEY,
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.inquilino(
+	id_inquilino CHAR(10) PRIMARY KEY,
+	nombre VARCHAR(100),
+	apellido VARCHAR(100),
+	numero_doc VARCHAR(100) UNIQUE,
+	tipo_doc CHAR(3),
+	telefono VARCHAR(50),
+	mail VARCHAR(100),
+	fecha_nacimiento DATE,
+	fecha_registro DATETIME,
+	CHECK (fecha_nacimiento < fecha_registro)
+);
+GO
+
+CREATE TABLE GESTIONATE.alquiler(
+	id_alquiler CHAR(10) PRIMARY KEY,
+	id_anuncio CHAR(10) REFERENCES GESTIONATE.anuncio,
+	id_inquilino CHAR(10) REFERENCES GESTIONATE.inquilino,
+	fecha_inicio DATETIME NOT NULL,
+	fecha_fin DATETIME NOT NULL,
+	duracion NUMERIC(18,2) NOT NULL,
+	deposito NUMERIC(18,2) NOT NULL,
+	comision NUMERIC(18,2) NOT NULL,
+	gastos_averiguaciones NUMERIC(18,2) NOT NULL,
+	id_estado_alquiler CHAR(3) REFERENCES GESTIONATE.estado_alquiler,
+	id_agente CHAR(10) REFERENCES GESTIONATE.agente,
+	id_inmueble CHAR(10) REFERENCES GESTIONATE.inmueble,
+	id_tipo_periodo CHAR(3) REFERENCES GESTIONATE.tipo_periodo,
+	id_sucursal CHAR(10) REFERENCES GESTIONATE.sucursal
+);
+GO
+
+CREATE TABLE GESTIONATE.medio_de_pago(
+	id_medio_de_pago CHAR(3) PRIMARY KEY,
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.pago_venta(
+	id_pago CHAR(10) PRIMARY KEY,
+	importe NUMERIC(18,2),
+	cotizacion NUMERIC(18,2),
+	id_moneda CHAR(3) REFERENCES GESTIONATE.moneda,
+	id_medio_de_pago CHAR(3) REFERENCES GESTIONATE.medio_de_pago
+);
+GO
+
+CREATE TABLE GESTIONATE.comprador(
+	id_comprador CHAR(10) PRIMARY KEY,
+	nombre VARCHAR(100),
+	apellido VARCHAR(100),
+	numero_doc VARCHAR(100) UNIQUE,
+	tipo_doc CHAR(3),
+	telefono VARCHAR(100),
+	mail VARCHAR(100),
+	fecha_nacimiento DATE,
+	fecha_registro DATETIME,
+	CHECK(fecha_nacimiento < fecha_registro)
+);
+GO
+
+CREATE TABLE GESTIONATE.venta(
+	id_venta CHAR(10) PRIMARY KEY,
+	id_anuncio CHAR(10) REFERENCES GESTIONATE.anuncio,
+	id_agente CHAR(10) REFERENCES GESTIONATE.agente,
+	id_comprador CHAR(10) REFERENCES GESTIONATE.comprador,
+	fecha_venta DATETIME,
+	precio_venta NUMERIC(18,2),
+	id_moneda CHAR(3) REFERENCES GESTIONATE.moneda,
+	id_pago CHAR(10) REFERENCES GESTIONATE.pago_venta, --revisar
+	comision_inmobiliaria NUMERIC(18,2),
+);
+GO
+
+CREATE TABLE GESTIONATE.pago_venta_x_venta(
+	id_venta CHAR(10) REFERENCES GESTIONATE.venta,
+	id_pago CHAR(10) REFERENCES GESTIONATE.pago_venta
+);
+GO
+
+CREATE TABLE GESTIONATE.pago_alquiler(
+    id_pago CHAR(10) PRIMARY KEY,
+	id_alquiler CHAR(10) REFERENCES GESTIONATE.alquiler,
+	id_inquilino CHAR(10) REFERENCES GESTIONATE.inquilino,
+	fecha_pago DATETIME,
+	nro_periodo_pago NUMERIC(18,0) NOT NULL,
+	descrip_periodo VARCHAR(100),
+	fecha_inicio_periodo DATETIME,
+	fecha_fin_periodo DATETIME,
+	importe NUMERIC(18,2),
+	id_medio_de_pago CHAR(3) REFERENCES GESTIONATE.medio_de_pago,
+	CHECK(fecha_inicio_periodo < fecha_fin_periodo)
+);
+GO
+
+CREATE TABLE GESTIONATE.importe_periodo(
+    id_alquiler CHAR(10) REFERENCES GESTIONATE.alquiler,
+	periodo_inicio NUMERIC(18,0),
+	periodo_fin NUMERIC(18,0),
+	precio NUMERIC(18,2),
+	PRIMARY KEY(id_alquiler,periodo_inicio),
+	CHECK(periodo_inicio < periodo_fin)
+);
+GO
