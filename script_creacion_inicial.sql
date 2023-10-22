@@ -61,7 +61,8 @@ GO
 ---------------------------------------------------------------
 ---------------------------------------------------------------
 CREATE TABLE GESTIONATE.sucursal(
-	codigo_sucursal DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	id_sucursal DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	codigo_sucursal VARCHAR(100),
 	nombre VARCHAR(100) NOT NULL,
 	codigo_direccion DECIMAL(18,0) REFERENCES GESTIONATE.direccion,
 	telefono VARCHAR(100) NOT NULL,
@@ -340,7 +341,87 @@ BEGIN
 	RETURN @id_anuncio;
 END
 GO
-obtenerAnuncio, obtenerInquilino, ALQUILER_FECHA_INICIO, ALQUILER_FECHA_FIN, obtenerDuracion, ALQUILER_DEPOSITO, ALQUILER_COMISION, ALQUILER_GASTOS_AVERIGUA, ALQUILER_ESTADO, obtenerAgente, obtenerInmueble, obtenerTipoPeriodo, obtenerSucursal
+
+-- OBTENER_ID_INQUILINO --> Retorna el ID de un inquilino dado un numero de documento.
+CREATE FUNCTION GESTIONATE.OBTENER_ID_INQUILINO(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_inquilino DECIMAL(18,0);
+
+	SELECT @id_inquilino = id_inquilino FROM GESTIONATE.inquilino WHERE numero_doc = @dni;
+
+	RETURN @id_inquilino;
+END
+GO
+
+/* OBTENER_DURACION --> Se registra la cantidad de períodos por los cuales se
+alquila el inmueble. Por ejemplo, 36 (meses), 2 (semanas), 1 (quincena)
+El tipo de periodo al cual corresponde la duración (meses, semanas, quincena,
+etc) es el mismo que se especifica en el anuncio*/
+
+CREATE FUNCTION GESTIONATE.OBTENER_DURACION(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_inquilino DECIMAL(18,0);
+
+	SELECT @id_inquilino = id_inquilino FROM GESTIONATE.inquilino WHERE numero_doc = @dni;
+
+	RETURN @id_inquilino;
+END
+GO
+
+ -- OBTENER_ID_AGENTE --> Retorna el ID de un agente dado un numero de documento.
+
+CREATE FUNCTION GESTIONATE.OBTENER_AGENTE(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_agente DECIMAL(18,0);
+
+	SELECT @id_agente = id_agente FROM GESTIONATE.agente WHERE numero_doc = @dni;
+
+	RETURN @id_agente;
+END
+GO
+
+-- OBTENER_INMUEBLE --> Retorna el ID de un inmueble dado un codigo_inmueble
+
+CREATE FUNCTION GESTIONATE.OBTENER_INMUEBLE(@codigo NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_inmueble DECIMAL(18,0);
+
+	SELECT @id_inmueble = id_inmueble FROM GESTIONATE.inmueble WHERE codigo_inmueble = @codigo;
+
+	RETURN @id_inmueble;
+END
+GO
+
+-- OBTENER_SUCURSAL --> Retorna el ID de una sucursal dado un codigo_sucursal
+
+CREATE FUNCTION GESTIONATE.OBTENER_SUCURSAL(@codigo NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_sucursal DECIMAL(18,0);
+
+	SELECT @id_sucursal = id_sucursal FROM GESTIONATE.sucursal WHERE codigo_sucursal = @codigo;
+
+	RETURN @id_sucursal;
+END
+GO
+
+/*
+-- OBTENER_TIPO_PERIODO --> Retorna el ID de un tipo de periodo dado el codigo_anuncio.
+
+CREATE FUNCTION GESTIONATE.OBTENER_TIPO_PERIODO(@codigo NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_tipo_periodo DECIMAL(18,0);
+
+	SELECT @id_tipo_periodo = id_tipo_periodo FROM GESTIONATE.tipo_periodo WHERE  = @codigo;
+
+	RETURN @id_tipo_periodo;
+END
+GO*/
 
 
 
@@ -473,41 +554,41 @@ BEGIN
 END
 GO
 
-CREATE TABLE GESTIONATE.caracteristica(
+/*CREATE TABLE GESTIONATE.caracteristica(
 	id_caracteristica DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	detalle VARCHAR(100)
 );
-GO
+GO*/
 
-CREATE TABLE GESTIONATE.caracteristica_x_inmueble(
+/*CREATE TABLE GESTIONATE.caracteristica_x_inmueble(
 	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
 	id_caracteristica DECIMAL(18,0) REFERENCES GESTIONATE.caracteristica
 );
-GO
+GO*/
 
-CREATE TABLE GESTIONATE.moneda(
+/*CREATE TABLE GESTIONATE.moneda(
 	id_moneda DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	detalle VARCHAR(100) NOT NULL
 );
-GO
+GO*/
 
-CREATE TABLE GESTIONATE.tipo_periodo(
+/*CREATE TABLE GESTIONATE.tipo_periodo(
 	id_tipo_periodo DECIMAL(18,0) PRIMARY KEY,
 	detalle VARCHAR(100) NOT NULL
 );
-GO
+GO*/
 
-CREATE TABLE GESTIONATE.tipo_operacion(
+/*CREATE TABLE GESTIONATE.tipo_operacion(
 	id_tipo_operacion DECIMAL(18,0) PRIMARY KEY,
 	detalle VARCHAR(100) NOT NULL
 );
-GO
+GO*/
 
-CREATE TABLE GESTIONATE.estado_anuncio(
+/*CREATE TABLE GESTIONATE.estado_anuncio(
 	id_estado_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	detalle VARCHAR(100) NOT NULL
 );
-GO
+GO*/
 
 /*CREATE TABLE GESTIONATE.anuncio(
 	id_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
@@ -525,13 +606,13 @@ GO
 );
 GO*/
 
-CREATE TABLE GESTIONATE.estado_alquiler(
+/*CREATE TABLE GESTIONATE.estado_alquiler(
 	id_estado_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	detalle VARCHAR(100) NOT NULL
 );
-GO
+GO*/
 
-CREATE TABLE GESTIONATE.inquilino(
+/*CREATE TABLE GESTIONATE.inquilino(
 	id_inquilino DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(100),
 	apellido VARCHAR(100),
@@ -543,7 +624,7 @@ CREATE TABLE GESTIONATE.inquilino(
 	fecha_registro DATETIME,
 	CHECK (fecha_nacimiento < fecha_registro)
 );
-GO
+GO*/
 
 /*CREATE TABLE GESTIONATE.alquiler(
 	id_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
@@ -568,7 +649,7 @@ CREATE PROCEDURE GESTIONATE.migrar_alquiler AS
 BEGIN
 	SET IDENTITY_INSERT GESTIONATE.alquiler ON
 		INSERT INTO GESTIONATE.alquiler(codigo_alquiler, id_anuncio, fecha_inicio, fecha_fin, duracion, deposito, comision, gastos_averiguaciones, id_estado_alquiler, id_agente, id_inmueble, id_tipo_periodo, id_sucursal)
-		SELECT DISTINCT ALQUILER_CODIGO, obtenerAnuncio, obtenerInquilino, ALQUILER_FECHA_INICIO, ALQUILER_FECHA_FIN, obtenerDuracion, ALQUILER_DEPOSITO, ALQUILER_COMISION, ALQUILER_GASTOS_AVERIGUA, ALQUILER_ESTADO, obtenerAgente, obtenerInmueble, obtenerTipoPeriodo, obtenerSucursal FROM gd_esquema.Maestra WHERE PROPIETARIO_DNI IS NOT NULL
+		SELECT DISTINCT ALQUILER_CODIGO, GESTIONATE.OBTENER_ID_ANUNCIO(ANUNCIO_CODIGO), GESTIONATE.OBTENER_ID_INQUILINO(INQUILINO_DNI), ALQUILER_FECHA_INICIO, ALQUILER_FECHA_FIN, obtenerDuracion, ALQUILER_DEPOSITO, ALQUILER_COMISION, ALQUILER_GASTOS_AVERIGUA, ALQUILER_ESTADO, GESTIONATE.OBTENER_AGENTE(AGENTE_DNI), GESTIONATE.OBTENER_INMUEBLE(INMUEBLE_CODIGO), obtenerTipoPeriodo, GESTIONATE.OBTENER_SUCURSAL(SUCURSAL_CODIGO) FROM gd_esquema.Maestra WHERE PROPIETARIO_DNI IS NOT NULL
 	SET IDENTITY_INSERT GESTIONATE.alquiler OFF
 END
 GO
