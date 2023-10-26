@@ -590,11 +590,15 @@ BEGIN
 END
 GO
 
-/*CREATE TABLE GESTIONATE.caracteristica(
-	id_caracteristica DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100)
-);
-GO*/
+-- CARACTERISTICA
+CREATE PROCEDURE GESTIONATE.migrar_caracteristica AS
+BEGIN
+	INSERT INTO GESTIONATE.caracteristica(detalle) VALUES ('WIFI');
+	INSERT INTO GESTIONATE.caracteristica(detalle) VALUES ('CABLE');
+	INSERT INTO GESTIONATE.caracteristica(detalle) VALUES ('CALEFACCION');
+	INSERT INTO GESTIONATE.caracteristica(detalle) VALUES ('GAS');
+END
+GO
 
 /*CREATE TABLE GESTIONATE.caracteristica_x_inmueble(
 	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
@@ -676,11 +680,13 @@ BEGIN
 END
 GO
 
-/*CREATE TABLE GESTIONATE.estado_alquiler(
-	id_estado_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO*/
+-- ESTADO_ALQUILER
+CREATE PROCEDURE GESTIONATE.migrar_estado_alquiler AS
+BEGIN
+	INSERT INTO GESTIONATE.estado_alquiler(detalle)
+	SELECT DISTINCT ALQUILER_ESTADO FROM gd_esquema.Maestra
+END
+GO
 
 /*CREATE TABLE GESTIONATE.inquilino(
 	id_inquilino DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
@@ -715,6 +721,7 @@ GO*/
 );
 GO*/
 
+-- ALQUILER
 CREATE PROCEDURE GESTIONATE.migrar_alquiler AS
 BEGIN
 	SET IDENTITY_INSERT GESTIONATE.alquiler ON
@@ -787,6 +794,7 @@ GO*/
 );
 GO*/
 
+-- IMPORTE_PERIODO
 CREATE PROCEDURE GESTIONATE.migrar_importe_periodo AS
 BEGIN
     INSERT INTO GESTIONATE.importe_periodo (id_alquiler, periodo_inicio, periodo_fin, precio)
