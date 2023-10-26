@@ -592,17 +592,13 @@ BEGIN
 END
 GO
 
-/*CREATE TABLE GESTIONATE.tipo_operacion(
-	id_tipo_operacion DECIMAL(18,0) PRIMARY KEY,
-	detalle VARCHAR(100) NOT NULL
-);
-GO*/
-
-/*CREATE TABLE GESTIONATE.estado_anuncio(
-	id_estado_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO*/
+-- ESTADO_ANUNCIO
+CREATE PROCEDURE GESTIONATE.migrar_estado_anuncio AS
+BEGIN
+	INSERT INTO GESTIONATE.estado_anuncio(detalle)
+	SELECT DISTINCT ANUNCIO_ESTADO FROM gd_esquema.Maestra
+END
+GO
 
 /*CREATE TABLE GESTIONATE.anuncio(
 	id_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
