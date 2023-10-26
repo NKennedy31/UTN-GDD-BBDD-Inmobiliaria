@@ -787,12 +787,11 @@ GO*/
 );
 GO*/
 
-/*CREATE TABLE GESTIONATE.importe_periodo(
-    id_alquiler DECIMAL(18,0) REFERENCES GESTIONATE.alquiler,
-	periodo_inicio NUMERIC(18,0),
-	periodo_fin NUMERIC(18,0),
-	precio NUMERIC(18,2),
-	PRIMARY KEY(id_alquiler,periodo_inicio),
-	CHECK(periodo_inicio < periodo_fin)
-);
-GO*/
+CREATE PROCEDURE GESTIONATE.migrar_importe_periodo AS
+BEGIN
+    INSERT INTO GESTIONATE.importe_periodo (id_alquiler, periodo_inicio, periodo_fin, precio)
+    SELECT a.id_alquiler, m.DETALLE_ALQ_NRO_PERIODO_INI, m.DETALLE_ALQ_NRO_PERIODO_FIN, m.DETALLE_ALQ_PRECIO
+  FROM [GD2C2023].[gd_esquema].[Maestra] m
+  LEFT JOIN GESTIONATE.alquiler a ON m.ALQUILER_CODIGO = a.codigo_alquiler
+  WHERE ALQUILER_CODIGO IS NOT NULL
+END
