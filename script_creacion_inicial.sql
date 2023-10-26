@@ -659,12 +659,6 @@ BEGIN
 END
 GO
 
-/*CREATE TABLE GESTIONATE.caracteristica_x_inmueble(
-	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
-	id_caracteristica DECIMAL(18,0) REFERENCES GESTIONATE.caracteristica
-);
-GO*/
-
 -- MONEDA
 CREATE PROCEDURE GESTIONATE.migrar_moneda AS
 BEGIN
