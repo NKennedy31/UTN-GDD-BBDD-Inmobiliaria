@@ -457,6 +457,18 @@ BEGIN
 END
 GO
 
+CREATE FUNCTION GESTIONATE.OBTENER_CARACTERISTICA(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_tipo DECIMAL(18,0);
+
+	SELECT @id_tipo = id_caracteristica FROM GESTIONATE.caracteristica WHERE detalle = @detalle;
+
+	RETURN @id_tipo;
+	
+END
+GO
+
 
 
 -------------------------------------------------------------------------------------------------------------------------
@@ -597,6 +609,53 @@ BEGIN
 	INSERT INTO GESTIONATE.caracteristica(detalle) VALUES ('CABLE');
 	INSERT INTO GESTIONATE.caracteristica(detalle) VALUES ('CALEFACCION');
 	INSERT INTO GESTIONATE.caracteristica(detalle) VALUES ('GAS');
+END
+GO
+
+-- CARACTERISTICA_X_INMUEBLE
+CREATE PROCEDURE GESTIONATE.migrar_caracteristica_x_inmueble AS
+BEGIN
+	DECLARE cursorCaracteristicas CURSOR FOR
+	SELECT DISTINCT INMUEBLE_CODIGO, INMUEBLE_CARACTERISTICA_CABLE, INMUEBLE_CARACTERISTICA_GAS, INMUEBLE_CARACTERISTICA_WIFI, INMUEBLE_CARACTERISTICA_CALEFACCION FROM gd_esquema.Maestra WHERE INMUEBLE_CODIGO IS NOT NULL ORDER BY INMUEBLE_CODIGO;
+
+	DECLARE @inmueble_codigo NUMERIC(18,0), @cable NUMERIC(18,0), @gas NUMERIC(18,0), @wifi NUMERIC(18,0), @calefaccion NUMERIC(18,0), @id_inmueble NUMERIC(18,0),
+			@id_cable NUMERIC(18,0), @id_wifi NUMERIC(18,0), @id_calefaccion NUMERIC(18,0), @id_gas NUMERIC(18,0);
+			
+	SET @id_cable = GESTIONATE.OBTENER_CARACTERISTICA(@cable);
+	SET @id_wifi = GESTIONATE.OBTENER_CARACTERISTICA(@wifi);
+	SET @id_calefaccion = GESTIONATE.OBTENER_CARACTERISTICA(@calefaccion);
+	SET @id_gas = GESTIONATE.OBTENER_CARACTERISTICA(@gas);
+
+	OPEN cursorCaracteristicas;
+	FETCH NEXT FROM cursorCaracteristicas INTO @inmueble_codigo, @cable, @gas, @wifi, @calefaccion;
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+		SET @id_inmueble = GESTIONATE.OBTENER_INMUEBLE(@inmueble_codigo);
+		
+		IF @gas=1
+		BEGIN
+			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_gas)
+		END
+		IF @calefaccion=1
+		BEGIN
+			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_calefaccion)
+		END
+		IF @wifi=1
+		BEGIN
+			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_wifi)
+		END
+		IF @cable=1
+		BEGIN
+			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_cable)
+		END
+
+		FETCH NEXT FROM cursorCaracteristicas INTO @inmueble_codigo, @cable, @gas, @wifi, @calefaccion;
+	END
+
+	CLOSE cursorCaracteristicas;
+	DEALLOCATE cursorCaracteristicas;
+	
 END
 GO
 
