@@ -222,7 +222,7 @@ GO
 
 CREATE TABLE GESTIONATE.alquiler(
 	id_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	codigo_alquiler VARCHAR(100),
+	codigo_alquiler DECIMAL(18,0),
 	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
 	id_inquilino DECIMAL(18,0) REFERENCES GESTIONATE.inquilino,
 	fecha_inicio DATETIME NOT NULL,
@@ -409,19 +409,53 @@ BEGIN
 END
 GO
 
-/*
--- OBTENER_TIPO_PERIODO --> Retorna el ID de un tipo de periodo dado el codigo_anuncio.
-
-CREATE FUNCTION GESTIONATE.OBTENER_TIPO_PERIODO(@codigo NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+CREATE FUNCTION GESTIONATE.OBTENER_TIPO_PERIODO(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
 
 	DECLARE @id_tipo_periodo DECIMAL(18,0);
 
-	SELECT @id_tipo_periodo = id_tipo_periodo FROM GESTIONATE.tipo_periodo WHERE  = @codigo;
+	SELECT @id_tipo_periodo = id_tipo_periodo FROM GESTIONATE.tipo_periodo WHERE detalle = @detalle;
 
 	RETURN @id_tipo_periodo;
+	
 END
-GO*/
+GO
+
+CREATE FUNCTION GESTIONATE.OBTENER_MONEDA(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_moneda DECIMAL(18,0);
+
+	SELECT @id_moneda = id_moneda FROM GESTIONATE.moneda WHERE detalle = @detalle;
+
+	RETURN @id_moneda;
+	
+END
+GO
+
+CREATE FUNCTION GESTIONATE.OBTENER_ESTADO_ANUNCIO(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_estado DECIMAL(18,0);
+
+	SELECT @id_estado = id_estado_anuncio FROM GESTIONATE.estado_anuncio WHERE detalle = @detalle;
+
+	RETURN @id_estado;
+	
+END
+GO
+
+CREATE FUNCTION GESTIONATE.OBTENER_TIPO_OPERACION(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
+BEGIN
+
+	DECLARE @id_tipo DECIMAL(18,0);
+
+	SELECT @id_tipo = id_tipo_operacion FROM GESTIONATE.tipo_operacion WHERE detalle = @detalle;
+
+	RETURN @id_tipo;
+	
+END
+GO
 
 
 
@@ -600,21 +634,47 @@ BEGIN
 END
 GO
 
-/*CREATE TABLE GESTIONATE.anuncio(
-	id_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	codigo_anuncio VARCHAR(100),
-	id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
-	id_tipo_operacion DECIMAL(18,0) REFERENCES GESTIONATE.tipo_operacion,
-	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
-	precio NUMERIC(18,2) NOT NULL,
-	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
-	id_tipo_periodo DECIMAL(18,0) REFERENCES GESTIONATE.tipo_periodo,
-	id_estado_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.estado_anuncio,
-	fecha_publicacion DATETIME NOT NULL,
-	fecha_finalizacion DATETIME NOT NULL,
-	costo_publicacion NUMERIC(18,2) NOT NULL
-);
-GO*/
+-- ANUNCIO
+CREATE PROCEDURE GESTIONATE.migrar_anuncio AS
+BEGIN
+	DECLARE cursorAnuncios CURSOR FOR
+	SELECT DISTINCT ANUNCIO_CODIGO, AGENTE_DNI, ANUNCIO_TIPO_OPERACION, ANUNCIO_TIPO_PERIODO, INMUEBLE_CODIGO, ANUNCIO_PRECIO_PUBLICADO, ANUNCIO_MONEDA, ANUNCIO_ESTADO, ANUNCIO_FECHA_PUBLICACION, ANUNCIO_FECHA_FINALIZACION, ANUNCIO_COSTO_ANUNCIO FROM gd_esquema.Maestra WHERE ANUNCIO_CODIGO IS NOT NULL ORDER BY ANUNCIO_CODIGO;
+
+	DECLARE @anuncio_codigo NUMERIC(19,0), @dni_agente DECIMAL(18,0), @tipoOperacion VARCHAR(100), @tipoPeriodo VARCHAR(100), @inmueble_codigo NUMERIC(18,0),
+			@precio NUMERIC(18,2), @moneda VARCHAR(100), @estadoAnuncio VARCHAR(100), @fechaPubli DATETIME, @fechaFin DATETIME, @costo_publi NUMERIC(18,2);
+
+	OPEN cursorAnuncios;
+	FETCH NEXT FROM cursorAnuncios INTO @anuncio_codigo, @dni_agente, @tipoOperacion, @tipoPeriodo, @inmueble_codigo, @precio, @moneda, @estadoAnuncio, @fechaPubli, @fechaFin, @costo_publi;
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+		IF(@inmueble_codigo IS NOT NULL)
+		BEGIN
+			IF EXISTS(SELECT * FROM GESTIONATE.anuncio WHERE codigo_anuncio = @anuncio_codigo)
+				BEGIN
+					UPDATE GESTIONATE.anuncio SET id_inmueble = GESTIONATE.OBTENER_INMUEBLE(@inmueble_codigo), id_moneda = GESTIONATE.OBTENER_MONEDA(@moneda),
+												id_tipo_periodo = GESTIONATE.OBTENER_TIPO_PERIODO(@tipoPeriodo), id_estado_anuncio = GESTIONATE.OBTENER_ESTADO_ANUNCIO(@estadoAnuncio),
+												id_tipo_operacion = GESTIONATE.OBTENER_TIPO_OPERACION(@tipoOperacion), id_agente = GESTIONATE.OBTENER_AGENTE(@dni_agente)
+											WHERE codigo_anuncio = @anuncio_codigo;
+				END
+			ELSE
+				BEGIN
+					INSERT INTO GESTIONATE.anuncio(codigo_anuncio, id_agente, id_tipo_operacion, id_inmueble,
+													precio, id_moneda, id_tipo_periodo, id_estado_anuncio,
+													fecha_publicacion, fecha_finalizacion, costo_publicacion)
+					VALUES (@anuncio_codigo, GESTIONATE.OBTENER_AGENTE(@dni_agente), GESTIONATE.OBTENER_TIPO_OPERACION(@tipoOperacion), GESTIONATE.OBTENER_INMUEBLE(@inmueble_codigo),
+							@precio, GESTIONATE.OBTENER_MONEDA(@moneda), GESTIONATE.OBTENER_TIPO_PERIODO(@tipoPeriodo), GESTIONATE.OBTENER_ESTADO_ANUNCIO(@estadoAnuncio),
+							@fechaPubli, @fechaFin, @costo_publi);
+				END
+		END
+	
+		FETCH NEXT FROM cursorAnuncios INTO @anuncio_codigo, @dni_agente, @tipoOperacion, @tipoPeriodo, @inmueble_codigo, @precio, @moneda, @estadoAnuncio, @fechaPubli, @fechaFin, @costo_publi;
+	END
+
+	CLOSE cursorAnuncios;
+	DEALLOCATE cursorAnuncios;
+END
+GO
 
 /*CREATE TABLE GESTIONATE.estado_alquiler(
 	id_estado_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
