@@ -3,6 +3,8 @@
 --El borrazo es a fuerza bruta, se deshabilitan todas las protecciones para hacerlo asi que
 --recomiendo no modificar.
 --																		Mateo.
+USE [GD2C2023]
+GO
 EXEC sp_msforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
 
 DECLARE @sql NVARCHAR(max)=''
