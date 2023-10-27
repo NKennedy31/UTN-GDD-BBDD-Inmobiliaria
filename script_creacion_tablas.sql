@@ -30,8 +30,7 @@ CREATE TABLE GESTIONATE.direccion(
 	codigo_provincia DECIMAL(18,0) REFERENCES GESTIONATE.provincia
 );
 GO
----------------------------------------------------------------
----------------------------------------------------------------
+
 CREATE TABLE GESTIONATE.sucursal(
 	id_sucursal DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	codigo_sucursal VARCHAR(100),
