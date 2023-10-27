@@ -70,22 +70,6 @@ BEGIN
 END
 GO
 
-/* OBTENER_DURACION --> Se registra la cantidad de períodos por los cuales se
-alquila el inmueble. Por ejemplo, 36 (meses), 2 (semanas), 1 (quincena)
-El tipo de periodo al cual corresponde la duración (meses, semanas, quincena,
-etc) es el mismo que se especifica en el anuncio*/
-
-CREATE FUNCTION GESTIONATE.OBTENER_DURACION(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
-BEGIN
-
-	DECLARE @id_inquilino DECIMAL(18,0);
-
-	SELECT @id_inquilino = id_inquilino FROM GESTIONATE.inquilino WHERE numero_doc = @dni;
-
-	RETURN @id_inquilino;
-END
-GO
-
  -- OBTENER_ID_AGENTE --> Retorna el ID de un agente dado un numero de documento.
 
 CREATE FUNCTION GESTIONATE.OBTENER_AGENTE(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
@@ -491,11 +475,6 @@ BEGIN
 END
 GO
 
-/*CREATE TABLE GESTIONATE.medio_de_pago(
-	id_medio_de_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO*/
 
 /*CREATE TABLE GESTIONATE.pago_venta(
 	id_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
@@ -553,6 +532,8 @@ GO*/
 	CHECK(fecha_inicio_periodo < fecha_fin_periodo)
 );
 GO*/
+
+-- PAGO_ALQUILER
 
 -- IMPORTE_PERIODO
 CREATE PROCEDURE GESTIONATE.migrar_importe_periodo AS

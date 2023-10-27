@@ -98,7 +98,7 @@ GO
 
 CREATE TABLE GESTIONATE.inmueble(
 	id_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	--id_anucio CHAR(10) REFERENCES GESTIONATE.anuncio, HAY QUE REVISAR ESTO
+	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
 	codigo_inmueble VARCHAR(100),
 	nombre VARCHAR(100),
 	id_tipo_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.tipo_inmueble,
@@ -182,8 +182,7 @@ CREATE TABLE GESTIONATE.inquilino(
 	telefono VARCHAR(50),
 	mail VARCHAR(100),
 	fecha_nacimiento DATE,
-	fecha_registro DATETIME,
-	--CHECK (fecha_nacimiento < fecha_registro)
+	fecha_registro DATETIME
 );
 GO
 
@@ -244,14 +243,7 @@ CREATE TABLE GESTIONATE.venta(
     fecha_venta DATETIME,
     precio_venta NUMERIC(18,2),
     id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
-    id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta, --revisar
     comision_inmobiliaria NUMERIC(18,2),
-);
-GO
-
-CREATE TABLE GESTIONATE.pago_venta_x_venta(
-	id_venta DECIMAL(18,0) REFERENCES GESTIONATE.venta,
-	id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta
 );
 GO
 
