@@ -1,6 +1,3 @@
-USE [GD2C2023]
-GO
---------------------------------------------------------------
 CREATE TABLE GESTIONATE.provincia(
 	id_provincia DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(100) NOT NULL,
@@ -23,10 +20,7 @@ GO
 
 CREATE TABLE GESTIONATE.direccion(
 	id_direccion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	calle VARCHAR(100) NOT NULL,
-	numero NUMERIC(18,0) NOT NULL,
-	piso CHAR(10) NOT NULL,
-	departamento CHAR(10) NOT NULL,
+	detalle VARCHAR(100) NOT NULL,
 	codigo_barrio DECIMAL(18,0) REFERENCES GESTIONATE.barrio,
 	codigo_localidad DECIMAL(18,0) REFERENCES GESTIONATE.localidad,
 	codigo_provincia DECIMAL(18,0) REFERENCES GESTIONATE.provincia
@@ -242,15 +236,16 @@ CREATE TABLE GESTIONATE.comprador(
 GO
 
 CREATE TABLE GESTIONATE.venta(
-	id_venta DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
-	id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
-	id_comprador DECIMAL(18,0) REFERENCES GESTIONATE.comprador,
-	fecha_venta DATETIME,
-	precio_venta NUMERIC(18,2),
-	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
-	id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta, --revisar
-	comision_inmobiliaria NUMERIC(18,2),
+    id_venta DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+    codigo_venta DECIMAL(18,0),
+    id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
+    id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
+    id_comprador DECIMAL(18,0) REFERENCES GESTIONATE.comprador,
+    fecha_venta DATETIME,
+    precio_venta NUMERIC(18,2),
+    id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
+    id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta, --revisar
+    comision_inmobiliaria NUMERIC(18,2),
 );
 GO
 
