@@ -1,3 +1,5 @@
+USE [GD2C2023]
+GO
 --------------------------------------------------------------
 CREATE TABLE GESTIONATE.provincia(
 	id_provincia DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
