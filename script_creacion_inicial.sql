@@ -1,169 +1,373 @@
 USE [GD2C2023]
 GO
 
--------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------Sección 1--------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------
+-- !!!!!!!!!!!!!!!!!! --
+-- Creacion de TABLAS --
+-- ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ --
 
--- En esta sección se borrarán los objetos previamente creados
--- Esto es debido a que durante el desarrollo puede ser que se ejecute este script repetidas veces
--- Sin borrar los objetos antiguos SQL Server no permitirá la ejecución y por tal motivo se realiza esta primera sección
--- Esta sección no incide de manera relevante en la performance de la ejecución.
+CREATE TABLE GESTIONATE.provincia(
+	id_provincia DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	nombre VARCHAR(100) NOT NULL,
+);
+GO
+
+CREATE TABLE GESTIONATE.localidad(
+	id_localidad DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	nombre VARCHAR(100) NOT NULL,
+	codigo_provincia DECIMAL(18,0) REFERENCES GESTIONATE.provincia,
+);
+GO
+
+CREATE TABLE GESTIONATE.barrio(
+	id_barrio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1), 
+	nombre VARCHAR(100) NOT NULL,
+	codigo_localidad DECIMAL(18,0) REFERENCES GESTIONATE.localidad,
+);
+GO
+
+CREATE TABLE GESTIONATE.direccion(
+	id_direccion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL,
+	codigo_barrio DECIMAL(18,0) REFERENCES GESTIONATE.barrio,
+	codigo_localidad DECIMAL(18,0) REFERENCES GESTIONATE.localidad,
+	codigo_provincia DECIMAL(18,0) REFERENCES GESTIONATE.provincia
+);
+GO
+
+CREATE TABLE GESTIONATE.sucursal(
+	id_sucursal DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	codigo_sucursal VARCHAR(100),
+	nombre VARCHAR(100) NOT NULL,
+	codigo_direccion DECIMAL(18,0) REFERENCES GESTIONATE.direccion,
+	telefono VARCHAR(100) NOT NULL,
+);
+GO
+
+CREATE TABLE GESTIONATE.agente(
+	id_agente DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	nombre VARCHAR(100) NOT NULL,
+	apellido VARCHAR(100) NOT NULL,
+	numero_doc VARCHAR(100) NOT NULL,
+	tipo_doc CHAR(3) NOT NULL,
+	telefono VARCHAR(100) NOT NULL,
+	mail VARCHAR(100) NOT NULL,
+	fecha_nacimiento DATE NOT NULL,
+	fecha_registro DATETIME NOT NULL,
+	codigo_sucursal DECIMAL(18,0) REFERENCES GESTIONATE.sucursal
+);
+GO
+
+CREATE TABLE GESTIONATE.tipo_inmueble(
+	id_tipo_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.ambiente(
+	id_ambiente DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	cantidad_ambientes VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.propietario(
+	id_propietario DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	nombre VARCHAR(100),
+	apellido VARCHAR(100),
+	numero_doc VARCHAR(100),
+	tipo_doc CHAR(3),
+	telefono VARCHAR(100),
+	mail VARCHAR(100),
+	fecha_nacimiento DATE,
+	fecha_registro DATETIME,
+);
+GO
+
+CREATE TABLE GESTIONATE.orientacion(
+	id_orientacion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.disposicion(
+	id_disposicion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.estado_inmueble(
+	id_estado_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.inmueble(
+	id_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	id_anuncio DECIMAL(18,0),
+	codigo_inmueble VARCHAR(100),
+	nombre VARCHAR(100),
+	id_tipo_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.tipo_inmueble,
+	descripcion VARCHAR(100),
+	id_propietario DECIMAL(18,0) REFERENCES GESTIONATE.propietario,
+	codigo_direccion DECIMAL(18,0) REFERENCES GESTIONATE.direccion,
+	id_ambiente DECIMAL(18,0) REFERENCES GESTIONATE.ambiente,
+	superficie_total NUMERIC(18,2),
+	id_disposicion DECIMAL(18,0) REFERENCES GESTIONATE.disposicion,
+	id_orientacion DECIMAL(18,0) REFERENCES GESTIONATE.orientacion,
+	id_estado_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.estado_inmueble,
+	antiguedad DATE,
+	expensas NUMERIC(18,2)
+);
+GO
+
+CREATE TABLE GESTIONATE.caracteristica(
+	id_caracteristica DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100)
+);
+GO
+
+CREATE TABLE GESTIONATE.caracteristica_x_inmueble(
+	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
+	id_caracteristica DECIMAL(18,0) REFERENCES GESTIONATE.caracteristica
+);
+GO
+
+CREATE TABLE GESTIONATE.moneda(
+	id_moneda DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.tipo_periodo(
+	id_tipo_periodo DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.tipo_operacion(
+	id_tipo_operacion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.estado_anuncio(
+	id_estado_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.anuncio(
+	id_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	codigo_anuncio VARCHAR(100),
+	id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
+	id_tipo_operacion DECIMAL(18,0) REFERENCES GESTIONATE.tipo_operacion,
+	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
+	precio NUMERIC(18,2) NOT NULL,
+	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
+	id_tipo_periodo DECIMAL(18,0) REFERENCES GESTIONATE.tipo_periodo,
+	id_estado_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.estado_anuncio,
+	fecha_publicacion DATETIME NOT NULL,
+	fecha_finalizacion DATETIME NOT NULL,
+	costo_publicacion NUMERIC(18,2) NOT NULL
+);
+GO
+
+ALTER TABLE GESTIONATE.inmueble
+ADD CONSTRAINT Inmueble_FK_Anuncio
+FOREIGN KEY (id_anuncio)
+REFERENCES GESTIONATE.anuncio(id_anuncio);
+
+CREATE TABLE GESTIONATE.estado_alquiler(
+	id_estado_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.inquilino(
+	id_inquilino DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	nombre VARCHAR(100),
+	apellido VARCHAR(100),
+	numero_doc VARCHAR(100),
+	tipo_doc CHAR(3),
+	telefono VARCHAR(50),
+	mail VARCHAR(100),
+	fecha_nacimiento DATE,
+	fecha_registro DATETIME
+);
+GO
+
+CREATE TABLE GESTIONATE.alquiler(
+	id_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	codigo_alquiler DECIMAL(18,0),
+	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
+	id_inquilino DECIMAL(18,0) REFERENCES GESTIONATE.inquilino,
+	fecha_inicio DATETIME NOT NULL,
+	fecha_fin DATETIME NOT NULL,
+	duracion NUMERIC(18,2) NOT NULL,
+	deposito NUMERIC(18,2) NOT NULL,
+	comision NUMERIC(18,2) NOT NULL,
+	gastos_averiguaciones NUMERIC(18,2) NOT NULL,
+	id_estado_alquiler DECIMAL(18,0) REFERENCES GESTIONATE.estado_alquiler,
+	id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
+	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
+	id_tipo_periodo DECIMAL(18,0) REFERENCES GESTIONATE.tipo_periodo,
+	id_sucursal DECIMAL(18,0) REFERENCES GESTIONATE.sucursal
+);
+GO
+
+CREATE TABLE GESTIONATE.medio_de_pago(
+	id_medio_de_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	detalle VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE GESTIONATE.comprador(
+	id_comprador DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	nombre VARCHAR(100),
+	apellido VARCHAR(100),
+	numero_doc VARCHAR(100),
+	tipo_doc CHAR(3),
+	telefono VARCHAR(100),
+	mail VARCHAR(100),
+	fecha_nacimiento DATE,
+	fecha_registro DATETIME
+);
+GO
+
+CREATE TABLE GESTIONATE.venta(
+    id_venta DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+    codigo_venta DECIMAL(18,0),
+    id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
+    id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
+    id_comprador DECIMAL(18,0) REFERENCES GESTIONATE.comprador,
+    fecha_venta DATETIME,
+    precio_venta NUMERIC(18,2),
+    id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
+    comision_inmobiliaria NUMERIC(18,2),
+);
+GO
+
+CREATE TABLE GESTIONATE.pago_venta(
+	id_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	id_venta DECIMAL(18,0) REFERENCES GESTIONATE.venta,
+	importe NUMERIC(18,2),
+	cotizacion NUMERIC(18,2),
+	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
+	id_medio_de_pago DECIMAL(18,0) REFERENCES GESTIONATE.medio_de_pago
+);
+GO
+
+CREATE TABLE GESTIONATE.pago_alquiler(
+    id_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	id_alquiler DECIMAL(18,0) REFERENCES GESTIONATE.alquiler,
+	id_inquilino DECIMAL(18,0) REFERENCES GESTIONATE.inquilino,
+	fecha_pago DATETIME,
+	nro_periodo_pago NUMERIC(18,0) NOT NULL,
+	descrip_periodo VARCHAR(100),
+	fecha_inicio_periodo DATETIME,
+	fecha_fin_periodo DATETIME,
+	importe NUMERIC(18,2),
+	id_medio_de_pago DECIMAL(18,0) REFERENCES GESTIONATE.medio_de_pago
+);
+GO
+
+CREATE TABLE GESTIONATE.importe_periodo(
+    id_alquiler DECIMAL(18,0) REFERENCES GESTIONATE.alquiler,
+	periodo_inicio NUMERIC(18,0),
+	periodo_fin NUMERIC(18,0),
+	precio NUMERIC(18,2),
+	PRIMARY KEY(id_alquiler,periodo_inicio)
+);
+GO
 
 
--------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------Sección 2--------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! --
+-- Creacion de FUNCIONES de utilidad para los procedures --
+-- ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ --
 
--- Esta sección consiste en la creeación del Esquema, Tablas y sus respectivos Constraints
-
--- CREACION DEL ESQUEMA
-
--- SCHEMA
---CREATE SCHEMA [GESTIONATE]
---GO
-
--- CREACION DE TABLAS DEL ESQUEMA
-
---------------------------------------------------------------
-
-
--------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------Sección 3--------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------
-
--- En esta sección se declaran las funciones necesarias para la migración.
-
--- OBTENER_PROPIETARIO --> Retorna el ID de un fabricante dado un nombre.
 CREATE FUNCTION GESTIONATE.OBTENER_PROPIETARIO(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_propietario DECIMAL(18,0);
-
 	SELECT @id_propietario = id_propietario FROM GESTIONATE.propietario WHERE numero_doc = @dni;
-
 	RETURN @id_propietario;
 END
 GO
 
--- OBTENER_ANUNCIO --> Retorna el ID de un anuncio dado un codigo.
 CREATE FUNCTION GESTIONATE.OBTENER_ANUNCIO(@codigo NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_anuncio DECIMAL(18,0);
-
 	SELECT @id_anuncio = id_anuncio FROM GESTIONATE.anuncio WHERE codigo_anuncio = @codigo;
-
 	RETURN @id_anuncio;
 END
 GO
 
--- OBTENER_INQUILINO --> Retorna el ID de un inquilino dado un numero de documento.
 CREATE FUNCTION GESTIONATE.OBTENER_INQUILINO(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_inquilino DECIMAL(18,0);
-
 	SELECT @id_inquilino = id_inquilino FROM GESTIONATE.inquilino WHERE numero_doc = @dni;
-
 	RETURN @id_inquilino;
 END
 GO
 
- -- OBTENER_AGENTE --> Retorna el ID de un agente dado un numero de documento.
-
 CREATE FUNCTION GESTIONATE.OBTENER_AGENTE(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_agente DECIMAL(18,0);
-
 	SELECT @id_agente = id_agente FROM GESTIONATE.agente WHERE numero_doc = @dni;
-
 	RETURN @id_agente;
 END
 GO
 
--- OBTENER_INMUEBLE --> Retorna el ID de un inmueble dado un codigo_inmueble
-
 CREATE FUNCTION GESTIONATE.OBTENER_INMUEBLE(@codigo NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_inmueble DECIMAL(18,0);
-
 	SELECT @id_inmueble = id_inmueble FROM GESTIONATE.inmueble WHERE codigo_inmueble = @codigo;
-
 	RETURN @id_inmueble;
 END
 GO
 
--- OBTENER_SUCURSAL --> Retorna el ID de una sucursal dado un codigo_sucursal
-
 CREATE FUNCTION GESTIONATE.OBTENER_SUCURSAL(@codigo NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_sucursal DECIMAL(18,0);
-
 	SELECT @id_sucursal = id_sucursal FROM GESTIONATE.sucursal WHERE codigo_sucursal = @codigo;
-
 	RETURN @id_sucursal;
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_TIPO_PERIODO(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_tipo_periodo DECIMAL(18,0);
-
 	SELECT @id_tipo_periodo = id_tipo_periodo FROM GESTIONATE.tipo_periodo WHERE detalle = @detalle;
-
-	RETURN @id_tipo_periodo;
-	
+	RETURN @id_tipo_periodo;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_MONEDA(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_moneda DECIMAL(18,0);
-
 	SELECT @id_moneda = id_moneda FROM GESTIONATE.moneda WHERE detalle = @detalle;
-
-	RETURN @id_moneda;
-	
+	RETURN @id_moneda;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_ESTADO_ANUNCIO(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_estado DECIMAL(18,0);
-
 	SELECT @id_estado = id_estado_anuncio FROM GESTIONATE.estado_anuncio WHERE detalle = @detalle;
-
-	RETURN @id_estado;
-	
+	RETURN @id_estado;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_ESTADO_ALQUILER(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_estado DECIMAL(18,0);
-
 	SELECT @id_estado = id_estado_alquiler FROM GESTIONATE.estado_alquiler WHERE detalle = @detalle;
-
 	RETURN @id_estado;
-	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_TIPO_OPERACION(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_tipo DECIMAL(18,0);
-
 	SELECT @id_tipo = id_tipo_operacion FROM GESTIONATE.tipo_operacion WHERE detalle = @detalle;
-
 	RETURN @id_tipo;
 	
 END
@@ -171,99 +375,64 @@ GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_CARACTERISTICA(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id_tipo DECIMAL(18,0);
-
 	SELECT @id_tipo = id_caracteristica FROM GESTIONATE.caracteristica WHERE detalle = @detalle;
-
-	RETURN @id_tipo;
-	
+	RETURN @id_tipo;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_LOCALIDAD(@nombre NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id DECIMAL(18,0);
-
 	SELECT @id = id_localidad FROM GESTIONATE.localidad WHERE nombre = @nombre;
-
-	RETURN @id;
-	
+	RETURN @id;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_PROVINCIA(@nombre NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id DECIMAL(18,0);
-
 	SELECT @id = id_provincia FROM GESTIONATE.provincia WHERE nombre = @nombre;
-
-	RETURN @id;
-	
+	RETURN @id;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_BARRIO(@nombre NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id DECIMAL(18,0);
-
 	SELECT @id = id_barrio FROM GESTIONATE.barrio WHERE nombre = @nombre;
-
-	RETURN @id;
-	
+	RETURN @id;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_ALQUILER(@codigo_alquiler NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id DECIMAL(18,0);
-
 	SELECT @id = id_alquiler FROM GESTIONATE.alquiler WHERE codigo_alquiler = @codigo_alquiler;
-
-	RETURN @id;
-	
+	RETURN @id;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_MEDIO_DE_PAGO(@detalle NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
 	DECLARE @id DECIMAL(18,0);
-
 	SELECT @id = id_medio_de_pago FROM GESTIONATE.medio_de_pago WHERE detalle = @detalle;
-
-	RETURN @id;
-	
+	RETURN @id;	
 END
 GO
 
 CREATE FUNCTION GESTIONATE.OBTENER_COMPRADOR(@dni NVARCHAR(255)) RETURNS DECIMAL(18,0) AS
 BEGIN
-
     DECLARE @id_comprador DECIMAL(18,0);
-
     SELECT @id_comprador = id_comprador FROM GESTIONATE.comprador WHERE numero_doc = @dni;
-
     RETURN @id_comprador;
 END
 GO
 
 
-
-
-
--------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------Sección 4--------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------
-
--- En esta sección se declaran las Stored Procedures para luego poder realizar la migración
--- Una Stored Procedure por cada tabla.
--- El nombre de la Stored Procedure especifica qué tabla se está migrando
--- Toda tabla cuya Primary Key es Identity, debe tener en su migración la sentencia que permite inserción de identities.
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! --
+-- Creacion de PROCEDURES para la MIGRACION --
+-- ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ --
 
 -- PROVINCIA
 CREATE PROCEDURE GESTIONATE.migrar_provincia AS
@@ -404,34 +573,28 @@ BEGIN
 
 	WHILE @@FETCH_STATUS = 0
 	BEGIN
-		SET @id_inmueble = GESTIONATE.OBTENER_INMUEBLE(@inmueble_codigo);
-		
+		SET @id_inmueble = GESTIONATE.OBTENER_INMUEBLE(@inmueble_codigo);		
 		IF @gas=1
-		BEGIN
-			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_gas)
-		END
-
+			BEGIN
+				INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_gas)
+			END
 		IF @calefaccion=1
-		BEGIN
-			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_calefaccion)
-		END
-
+			BEGIN
+				INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_calefaccion)
+			END
 		IF @wifi=1
-		BEGIN
-			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_wifi)
-		END
-
+			BEGIN
+				INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_wifi)
+			END
 		IF @cable=1
-		BEGIN
-			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_cable)
-		END
-
+			BEGIN
+				INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_cable)
+			END
 		FETCH NEXT FROM cursorCaracteristicas INTO @inmueble_codigo, @cable, @gas, @wifi, @calefaccion;
 	END
 
 	CLOSE cursorCaracteristicas;
-	DEALLOCATE cursorCaracteristicas;
-	
+	DEALLOCATE cursorCaracteristicas;	
 END
 GO
 
