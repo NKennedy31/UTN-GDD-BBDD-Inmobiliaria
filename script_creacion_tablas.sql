@@ -1,6 +1,3 @@
-USE [GD2C2023]
-GO
---------------------------------------------------------------
 CREATE TABLE GESTIONATE.provincia(
 	id_provincia DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(100) NOT NULL,
@@ -23,10 +20,7 @@ GO
 
 CREATE TABLE GESTIONATE.direccion(
 	id_direccion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	calle VARCHAR(100) NOT NULL,
-	numero NUMERIC(18,0) NOT NULL,
-	piso CHAR(10) NOT NULL,
-	departamento CHAR(10) NOT NULL,
+	detalle VARCHAR(100) NOT NULL,
 	codigo_barrio DECIMAL(18,0) REFERENCES GESTIONATE.barrio,
 	codigo_localidad DECIMAL(18,0) REFERENCES GESTIONATE.localidad,
 	codigo_provincia DECIMAL(18,0) REFERENCES GESTIONATE.provincia
