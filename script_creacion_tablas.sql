@@ -98,7 +98,7 @@ GO
 
 CREATE TABLE GESTIONATE.inmueble(
 	id_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
+	id_anuncio DECIMAL(18,0),
 	codigo_inmueble VARCHAR(100),
 	nombre VARCHAR(100),
 	id_tipo_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.tipo_inmueble,
@@ -167,6 +167,11 @@ CREATE TABLE GESTIONATE.anuncio(
 );
 GO
 
+ALTER TABLE GESTIONATE.inmueble
+ADD CONSTRAINT Inmueble_FK_Anuncio
+FOREIGN KEY (id_anuncio)
+REFERENCES GESTIONATE.anuncio(id_anuncio);
+
 CREATE TABLE GESTIONATE.estado_alquiler(
 	id_estado_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	detalle VARCHAR(100) NOT NULL
@@ -211,15 +216,6 @@ CREATE TABLE GESTIONATE.medio_de_pago(
 );
 GO
 
-CREATE TABLE GESTIONATE.pago_venta(
-	id_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	importe NUMERIC(18,2),
-	cotizacion NUMERIC(18,2),
-	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
-	id_medio_de_pago DECIMAL(18,0) REFERENCES GESTIONATE.medio_de_pago
-);
-GO
-
 CREATE TABLE GESTIONATE.comprador(
 	id_comprador DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(100),
@@ -244,6 +240,16 @@ CREATE TABLE GESTIONATE.venta(
     precio_venta NUMERIC(18,2),
     id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
     comision_inmobiliaria NUMERIC(18,2),
+);
+GO
+
+CREATE TABLE GESTIONATE.pago_venta(
+	id_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+	id_venta DECIMAL(18,0) REFERENCES GESTIONATE.venta,
+	importe NUMERIC(18,2),
+	cotizacion NUMERIC(18,2),
+	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
+	id_medio_de_pago DECIMAL(18,0) REFERENCES GESTIONATE.medio_de_pago
 );
 GO
 

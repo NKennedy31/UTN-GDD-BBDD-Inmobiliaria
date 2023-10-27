@@ -536,6 +536,15 @@ GO*/
 );
 GO*/
 
+CREATE PROCEDURE GESTIONATE.migrar_venta AS
+BEGIN
+    INSERT INTO [GESTIONATE].[venta]
+               ([codigo_venta],[id_anuncio],[id_agente],[id_comprador],[fecha_venta],[precio_venta],[id_moneda],[comision_inmobiliaria])
+               SELECT VENTA_CODIGO, GESTIONATE.OBTENER_ANUNCIO(ANUNCIO_CODIGO), GESTIONATE.OBTENER_AGENTE(AGENTE_DNI), GESTIONATE.OBTENER_COMPRADOR(COMPRADOR_DNI), VENTA_FECHA, VENTA_PRECIO_VENTA, GESTIONATE.OBTENER_MONEDA(VENTA_MONEDA),VENTA_COMISION FROM gd_esquema.Maestra m
+               WHERE VENTA_CODIGO IS NOT NULL;
+END
+GO
+
 /*CREATE TABLE GESTIONATE.venta(
 	id_venta DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
@@ -546,12 +555,6 @@ GO*/
 	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
 	id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta, --revisar
 	comision_inmobiliaria NUMERIC(18,2),
-);
-GO*/
-
-/*CREATE TABLE GESTIONATE.pago_venta_x_venta(
-	id_venta DECIMAL(18,0) REFERENCES GESTIONATE.venta,
-	id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta
 );
 GO*/
 
