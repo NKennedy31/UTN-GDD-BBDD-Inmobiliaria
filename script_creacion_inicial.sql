@@ -26,291 +26,7 @@ GO
 -- CREACION DE TABLAS DEL ESQUEMA
 
 --------------------------------------------------------------
---------------------------------------------------------------
-CREATE TABLE GESTIONATE.provincia(
-	id_provincia DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(100) NOT NULL,
-);
-GO
 
-CREATE TABLE GESTIONATE.localidad(
-	id_localidad DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(100) NOT NULL,
-	codigo_provincia DECIMAL(18,0) REFERENCES GESTIONATE.provincia,
-);
-GO
-
-CREATE TABLE GESTIONATE.barrio(
-	id_barrio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1), 
-	nombre VARCHAR(100) NOT NULL,
-	codigo_localidad DECIMAL(18,0) REFERENCES GESTIONATE.localidad,
-);
-GO
-
-CREATE TABLE GESTIONATE.direccion(
-	id_direccion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	calle VARCHAR(100) NOT NULL,
-	numero NUMERIC(18,0) NOT NULL,
-	piso CHAR(10) NOT NULL,
-	departamento CHAR(10) NOT NULL,
-	codigo_barrio DECIMAL(18,0) REFERENCES GESTIONATE.barrio,
-	codigo_localidad DECIMAL(18,0) REFERENCES GESTIONATE.localidad,
-	codigo_provincia DECIMAL(18,0) REFERENCES GESTIONATE.provincia
-);
-GO
----------------------------------------------------------------
----------------------------------------------------------------
-CREATE TABLE GESTIONATE.sucursal(
-	id_sucursal DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	codigo_sucursal VARCHAR(100),
-	nombre VARCHAR(100) NOT NULL,
-	codigo_direccion DECIMAL(18,0) REFERENCES GESTIONATE.direccion,
-	telefono VARCHAR(100) NOT NULL,
-);
-GO
-
-CREATE TABLE GESTIONATE.agente(
-	id_agente DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(100) NOT NULL,
-	apellido VARCHAR(100) NOT NULL,
-	numero_doc VARCHAR(100) NOT NULL,
-	tipo_doc CHAR(3) NOT NULL,
-	telefono VARCHAR(100) NOT NULL,
-	mail VARCHAR(100) NOT NULL,
-	fecha_nacimiento DATE NOT NULL,
-	fecha_registro DATETIME NOT NULL,
-	codigo_sucursal DECIMAL(18,0) REFERENCES GESTIONATE.sucursal
-);
-GO
-
-CREATE TABLE GESTIONATE.tipo_inmueble(
-	id_tipo_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.ambiente(
-	id_ambiente DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	cantidad_ambientes VARCHAR(100) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.propietario(
-	id_propietario DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(100),
-	apellido VARCHAR(100),
-	numero_doc VARCHAR(100),
-	tipo_doc CHAR(3),
-	telefono VARCHAR(100),
-	mail VARCHAR(100),
-	fecha_nacimiento DATE,
-	fecha_registro DATETIME,
-);
-GO
-
-CREATE TABLE GESTIONATE.orientacion(
-	id_orientacion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-
-CREATE TABLE GESTIONATE.disposicion(
-	id_disposicion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-
-CREATE TABLE GESTIONATE.estado_inmueble(
-	id_estado_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-
-CREATE TABLE GESTIONATE.inmueble(
-	id_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	--id_anucio CHAR(10) REFERENCES GESTIONATE.anuncio, HAY QUE REVISAR ESTO
-	codigo_inmueble VARCHAR(100),
-	nombre VARCHAR(100),
-	id_tipo_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.tipo_inmueble,
-	descripcion VARCHAR(100),
-	id_propietario DECIMAL(18,0) REFERENCES GESTIONATE.propietario,
-	codigo_direccion DECIMAL(18,0) REFERENCES GESTIONATE.direccion,
-	id_ambiente DECIMAL(18,0) REFERENCES GESTIONATE.ambiente,
-	superficie_total NUMERIC(18,2),
-	id_disposicion DECIMAL(18,0) REFERENCES GESTIONATE.disposicion,
-	id_orientacion DECIMAL(18,0) REFERENCES GESTIONATE.orientacion,
-	id_estado_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.estado_inmueble,
-	antiguedad DATE,
-	expensas NUMERIC(18,2)
-);
-GO
-
-CREATE TABLE GESTIONATE.caracteristica(
-	id_caracteristica DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100)
-);
-GO
-
-CREATE TABLE GESTIONATE.caracteristica_x_inmueble(
-	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
-	id_caracteristica DECIMAL(18,0) REFERENCES GESTIONATE.caracteristica
-);
-GO
-
-CREATE TABLE GESTIONATE.moneda(
-	id_moneda DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.tipo_periodo(
-	id_tipo_periodo DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.tipo_operacion(
-	id_tipo_operacion DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.estado_anuncio(
-	id_estado_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.anuncio(
-	id_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	codigo_anuncio VARCHAR(100),
-	id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
-	id_tipo_operacion DECIMAL(18,0) REFERENCES GESTIONATE.tipo_operacion,
-	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
-	precio NUMERIC(18,2) NOT NULL,
-	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
-	id_tipo_periodo DECIMAL(18,0) REFERENCES GESTIONATE.tipo_periodo,
-	id_estado_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.estado_anuncio,
-	fecha_publicacion DATETIME NOT NULL,
-	fecha_finalizacion DATETIME NOT NULL,
-	costo_publicacion NUMERIC(18,2) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.estado_alquiler(
-	id_estado_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.inquilino(
-	id_inquilino DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(100),
-	apellido VARCHAR(100),
-	numero_doc VARCHAR(100) UNIQUE,
-	tipo_doc CHAR(3),
-	telefono VARCHAR(50),
-	mail VARCHAR(100),
-	fecha_nacimiento DATE,
-	fecha_registro DATETIME,
-	CHECK (fecha_nacimiento < fecha_registro)
-);
-GO
-
-CREATE TABLE GESTIONATE.alquiler(
-	id_alquiler DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	codigo_alquiler DECIMAL(18,0),
-	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
-	id_inquilino DECIMAL(18,0) REFERENCES GESTIONATE.inquilino,
-	fecha_inicio DATETIME NOT NULL,
-	fecha_fin DATETIME NOT NULL,
-	duracion NUMERIC(18,2) NOT NULL,
-	deposito NUMERIC(18,2) NOT NULL,
-	comision NUMERIC(18,2) NOT NULL,
-	gastos_averiguaciones NUMERIC(18,2) NOT NULL,
-	id_estado_alquiler DECIMAL(18,0) REFERENCES GESTIONATE.estado_alquiler,
-	id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
-	id_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.inmueble,
-	id_tipo_periodo DECIMAL(18,0) REFERENCES GESTIONATE.tipo_periodo,
-	id_sucursal DECIMAL(18,0) REFERENCES GESTIONATE.sucursal
-);
-GO
-
-CREATE TABLE GESTIONATE.medio_de_pago(
-	id_medio_de_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	detalle VARCHAR(100) NOT NULL
-);
-GO
-
-CREATE TABLE GESTIONATE.pago_venta(
-	id_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	importe NUMERIC(18,2),
-	cotizacion NUMERIC(18,2),
-	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
-	id_medio_de_pago DECIMAL(18,0) REFERENCES GESTIONATE.medio_de_pago
-);
-GO
-
-CREATE TABLE GESTIONATE.comprador(
-	id_comprador DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(100),
-	apellido VARCHAR(100),
-	numero_doc VARCHAR(100) UNIQUE,
-	tipo_doc CHAR(3),
-	telefono VARCHAR(100),
-	mail VARCHAR(100),
-	fecha_nacimiento DATE,
-	fecha_registro DATETIME,
-	CHECK(fecha_nacimiento < fecha_registro)
-);
-GO
-
-CREATE TABLE GESTIONATE.venta(
-	id_venta DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
-	id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
-	id_comprador DECIMAL(18,0) REFERENCES GESTIONATE.comprador,
-	fecha_venta DATETIME,
-	precio_venta NUMERIC(18,2),
-	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
-	id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta, --revisar
-	comision_inmobiliaria NUMERIC(18,2),
-);
-GO
-
-CREATE TABLE GESTIONATE.pago_venta_x_venta(
-	id_venta DECIMAL(18,0) REFERENCES GESTIONATE.venta,
-	id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta
-);
-GO
-
-CREATE TABLE GESTIONATE.pago_alquiler(
-    id_pago DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	id_alquiler DECIMAL(18,0) REFERENCES GESTIONATE.alquiler,
-	id_inquilino DECIMAL(18,0) REFERENCES GESTIONATE.inquilino,
-	fecha_pago DATETIME,
-	nro_periodo_pago NUMERIC(18,0) NOT NULL,
-	descrip_periodo VARCHAR(100),
-	fecha_inicio_periodo DATETIME,
-	fecha_fin_periodo DATETIME,
-	importe NUMERIC(18,2),
-	id_medio_de_pago DECIMAL(18,0) REFERENCES GESTIONATE.medio_de_pago,
-	CHECK(fecha_inicio_periodo < fecha_fin_periodo)
-);
-GO
-
-CREATE TABLE GESTIONATE.importe_periodo(
-    id_alquiler DECIMAL(18,0) REFERENCES GESTIONATE.alquiler,
-	periodo_inicio NUMERIC(18,0),
-	periodo_fin NUMERIC(18,0),
-	precio NUMERIC(18,2),
-	PRIMARY KEY(id_alquiler,periodo_inicio),
-	CHECK(periodo_inicio < periodo_fin)
-);
-GO
 
 -------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------Sección 3--------------------------------------------------------
@@ -637,14 +353,17 @@ BEGIN
 		BEGIN
 			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_gas)
 		END
+
 		IF @calefaccion=1
 		BEGIN
 			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_calefaccion)
 		END
+
 		IF @wifi=1
 		BEGIN
 			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_wifi)
 		END
+
 		IF @cable=1
 		BEGIN
 			INSERT INTO GESTIONATE.caracteristica_x_inmueble(id_inmueble, id_caracteristica) VALUES (@id_inmueble, @id_cable)
@@ -694,42 +413,11 @@ GO
 -- ANUNCIO
 CREATE PROCEDURE GESTIONATE.migrar_anuncio AS
 BEGIN
-	DECLARE cursorAnuncios CURSOR FOR
-	SELECT DISTINCT ANUNCIO_CODIGO, AGENTE_DNI, ANUNCIO_TIPO_OPERACION, ANUNCIO_TIPO_PERIODO, INMUEBLE_CODIGO, ANUNCIO_PRECIO_PUBLICADO, ANUNCIO_MONEDA, ANUNCIO_ESTADO, ANUNCIO_FECHA_PUBLICACION, ANUNCIO_FECHA_FINALIZACION, ANUNCIO_COSTO_ANUNCIO FROM gd_esquema.Maestra WHERE ANUNCIO_CODIGO IS NOT NULL ORDER BY ANUNCIO_CODIGO;
-
-	DECLARE @anuncio_codigo NUMERIC(19,0), @dni_agente DECIMAL(18,0), @tipoOperacion VARCHAR(100), @tipoPeriodo VARCHAR(100), @inmueble_codigo NUMERIC(18,0),
-			@precio NUMERIC(18,2), @moneda VARCHAR(100), @estadoAnuncio VARCHAR(100), @fechaPubli DATETIME, @fechaFin DATETIME, @costo_publi NUMERIC(18,2);
-
-	OPEN cursorAnuncios;
-	FETCH NEXT FROM cursorAnuncios INTO @anuncio_codigo, @dni_agente, @tipoOperacion, @tipoPeriodo, @inmueble_codigo, @precio, @moneda, @estadoAnuncio, @fechaPubli, @fechaFin, @costo_publi;
-
-	WHILE @@FETCH_STATUS = 0
-	BEGIN
-		IF(@inmueble_codigo IS NOT NULL)
-		BEGIN
-			IF EXISTS(SELECT * FROM GESTIONATE.anuncio WHERE codigo_anuncio = @anuncio_codigo)
-				BEGIN
-					UPDATE GESTIONATE.anuncio SET id_inmueble = GESTIONATE.OBTENER_INMUEBLE(@inmueble_codigo), id_moneda = GESTIONATE.OBTENER_MONEDA(@moneda),
-												id_tipo_periodo = GESTIONATE.OBTENER_TIPO_PERIODO(@tipoPeriodo), id_estado_anuncio = GESTIONATE.OBTENER_ESTADO_ANUNCIO(@estadoAnuncio),
-												id_tipo_operacion = GESTIONATE.OBTENER_TIPO_OPERACION(@tipoOperacion), id_agente = GESTIONATE.OBTENER_AGENTE(@dni_agente)
-											WHERE codigo_anuncio = @anuncio_codigo;
-				END
-			ELSE
-				BEGIN
-					INSERT INTO GESTIONATE.anuncio(codigo_anuncio, id_agente, id_tipo_operacion, id_inmueble,
-													precio, id_moneda, id_tipo_periodo, id_estado_anuncio,
-													fecha_publicacion, fecha_finalizacion, costo_publicacion)
-					VALUES (@anuncio_codigo, GESTIONATE.OBTENER_AGENTE(@dni_agente), GESTIONATE.OBTENER_TIPO_OPERACION(@tipoOperacion), GESTIONATE.OBTENER_INMUEBLE(@inmueble_codigo),
-							@precio, GESTIONATE.OBTENER_MONEDA(@moneda), GESTIONATE.OBTENER_TIPO_PERIODO(@tipoPeriodo), GESTIONATE.OBTENER_ESTADO_ANUNCIO(@estadoAnuncio),
-							@fechaPubli, @fechaFin, @costo_publi);
-				END
-		END
-	
-		FETCH NEXT FROM cursorAnuncios INTO @anuncio_codigo, @dni_agente, @tipoOperacion, @tipoPeriodo, @inmueble_codigo, @precio, @moneda, @estadoAnuncio, @fechaPubli, @fechaFin, @costo_publi;
-	END
-
-	CLOSE cursorAnuncios;
-	DEALLOCATE cursorAnuncios;
+	INSERT INTO GESTIONATE.anuncio(codigo_anuncio, id_agente, id_tipo_operacion, id_inmueble, precio, id_moneda, id_tipo_periodo, id_estado_anuncio, fecha_publicacion, fecha_finalizacion, costo_publicacion)
+	SELECT DISTINCT ANUNCIO_CODIGO, GESTIONATE.OBTENER_AGENTE(AGENTE_DNI), GESTIONATE.OBTENER_TIPO_OPERACION(ANUNCIO_TIPO_OPERACION),
+	GESTIONATE.OBTENER_INMUEBLE(INMUEBLE_CODIGO), ANUNCIO_PRECIO_PUBLICADO, GESTIONATE.OBTENER_MONEDA(ANUNCIO_MONEDA),
+	GESTIONATE.OBTENER_TIPO_PERIODO(ANUNCIO_TIPO_PERIODO), GESTIONATE.OBTENER_ESTADO_ANUNCIO(ANUNCIO_ESTADO),
+	ANUNCIO_FECHA_PUBLICACION, ANUNCIO_FECHA_FINALIZACION, ANUNCIO_COSTO_ANUNCIO FROM gd_esquema.Maestra WHERE ANUNCIO_CODIGO IS NOT NULL ORDER BY ANUNCIO_CODIGO;
 END
 GO
 
@@ -738,6 +426,14 @@ CREATE PROCEDURE GESTIONATE.migrar_estado_alquiler AS
 BEGIN
 	INSERT INTO GESTIONATE.estado_alquiler(detalle)
 	SELECT DISTINCT ALQUILER_ESTADO FROM gd_esquema.Maestra
+END
+GO
+
+-- INQUILINO
+CREATE PROCEDURE GESTIONATE.migrar_inquilino AS
+BEGIN	
+	INSERT INTO GESTIONATE.inquilino(nombre, apellido, numero_doc, telefono, mail, fecha_nacimiento, fecha_registro, tipo_doc)
+	SELECT DISTINCT INQUILINO_NOMBRE, INQUILINO_APELLIDO, INQUILINO_DNI, INQUILINO_TELEFONO, INQUILINO_MAIL, INQUILINO_FECHA_NAC, INQUILINO_FECHA_REGISTRO, 'DNI' FROM gd_esquema.Maestra WHERE INQUILINO_DNI IS NOT NULL ORDER BY INQUILINO_DNI;
 END
 GO
 
