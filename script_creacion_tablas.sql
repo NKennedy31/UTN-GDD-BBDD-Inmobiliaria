@@ -220,13 +220,12 @@ CREATE TABLE GESTIONATE.comprador(
 	id_comprador DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(100),
 	apellido VARCHAR(100),
-	numero_doc VARCHAR(100) UNIQUE,
+	numero_doc VARCHAR(100),
 	tipo_doc CHAR(3),
 	telefono VARCHAR(100),
 	mail VARCHAR(100),
 	fecha_nacimiento DATE,
-	fecha_registro DATETIME,
-	CHECK(fecha_nacimiento < fecha_registro)
+	fecha_registro DATETIME
 );
 GO
 
@@ -263,8 +262,7 @@ CREATE TABLE GESTIONATE.pago_alquiler(
 	fecha_inicio_periodo DATETIME,
 	fecha_fin_periodo DATETIME,
 	importe NUMERIC(18,2),
-	id_medio_de_pago DECIMAL(18,0) REFERENCES GESTIONATE.medio_de_pago,
-	CHECK(fecha_inicio_periodo < fecha_fin_periodo)
+	id_medio_de_pago DECIMAL(18,0) REFERENCES GESTIONATE.medio_de_pago
 );
 GO
 
@@ -273,7 +271,6 @@ CREATE TABLE GESTIONATE.importe_periodo(
 	periodo_inicio NUMERIC(18,0),
 	periodo_fin NUMERIC(18,0),
 	precio NUMERIC(18,2),
-	PRIMARY KEY(id_alquiler,periodo_inicio),
-	CHECK(periodo_inicio < periodo_fin)
+	PRIMARY KEY(id_alquiler,periodo_inicio)
 );
 GO
