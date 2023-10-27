@@ -236,15 +236,16 @@ CREATE TABLE GESTIONATE.comprador(
 GO
 
 CREATE TABLE GESTIONATE.venta(
-	id_venta DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
-	id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
-	id_comprador DECIMAL(18,0) REFERENCES GESTIONATE.comprador,
-	fecha_venta DATETIME,
-	precio_venta NUMERIC(18,2),
-	id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
-	id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta, --revisar
-	comision_inmobiliaria NUMERIC(18,2),
+    id_venta DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
+    codigo_venta DECIMAL(18,0),
+    id_anuncio DECIMAL(18,0) REFERENCES GESTIONATE.anuncio,
+    id_agente DECIMAL(18,0) REFERENCES GESTIONATE.agente,
+    id_comprador DECIMAL(18,0) REFERENCES GESTIONATE.comprador,
+    fecha_venta DATETIME,
+    precio_venta NUMERIC(18,2),
+    id_moneda DECIMAL(18,0) REFERENCES GESTIONATE.moneda,
+    id_pago DECIMAL(18,0) REFERENCES GESTIONATE.pago_venta, --revisar
+    comision_inmobiliaria NUMERIC(18,2),
 );
 GO
 
