@@ -101,7 +101,6 @@ GO
 
 CREATE TABLE GESTIONATE.inmueble(
 	id_inmueble DECIMAL(18,0) PRIMARY KEY IDENTITY(1,1),
-	id_anuncio DECIMAL(19,0),
 	nombre VARCHAR(100),
 	id_tipo_inmueble DECIMAL(18,0) REFERENCES GESTIONATE.tipo_inmueble,
 	descripcion VARCHAR(100),
