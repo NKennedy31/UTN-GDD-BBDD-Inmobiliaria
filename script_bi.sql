@@ -1,83 +1,85 @@
-DROP TABLE IF EXISTS dim_tiempo
+USE GD2C2023
 GO
-CREATE TABLE dim_tiempo( 
+DROP TABLE IF EXISTS GESTIONATE.dim_tiempo
+GO
+CREATE TABLE GESTIONATE.dim_tiempo( 
 id_tiempo DECIMAL(18,0) PRIMARY KEY,
 anio INT,
 cuatrimestre INT,
 mes INT
 )
 GO
-DROP TABLE IF EXISTS dim_ubicacion
+DROP TABLE IF EXISTS GESTIONATE.dim_ubicacion
 GO
-CREATE TABLE dim_ubicacion( 
+CREATE TABLE GESTIONATE.dim_ubicacion( 
 id_ubicacion DECIMAL(18,0) PRIMARY KEY,
 provincia VARCHAR(100),
 barrio VARCHAR(100),
 localidad VARCHAR(100)
 )
 GO
-DROP TABLE IF EXISTS dim_sucursal
+DROP TABLE IF EXISTS GESTIONATE.dim_sucursal
 GO
-CREATE TABLE dim_sucursal( 
+CREATE TABLE GESTIONATE.dim_sucursal( 
 id_sucursal DECIMAL(18,0) PRIMARY KEY,
 nombre VARCHAR(100),
 telefono VARCHAR(100),
 detalle VARCHAR(100)
 )
 GO
-DROP TABLE IF EXISTS dim_rango_etario
+DROP TABLE IF EXISTS GESTIONATE.dim_rango_etario
 GO
-CREATE TABLE dim_rango_etario( 
+CREATE TABLE GESTIONATE.dim_rango_etario( 
 id_rango_etario DECIMAL(18,0) PRIMARY KEY,
 descripcion VARCHAR(100)
 )
 GO
-DROP TABLE IF EXISTS dim_tipo_inmueble
+DROP TABLE IF EXISTS GESTIONATE.dim_tipo_inmueble
 GO
-CREATE TABLE dim_tipo_inmueble( 
+CREATE TABLE GESTIONATE.dim_tipo_inmueble( 
 id_tipo_inmueble DECIMAL(18,0) PRIMARY KEY,
 descripcion VARCHAR(100)
 )
 GO
-DROP TABLE IF EXISTS dim_ambiente
+DROP TABLE IF EXISTS GESTIONATE.dim_ambiente
 GO
-CREATE TABLE dim_ambiente( 
+CREATE TABLE GESTIONATE.dim_ambiente( 
 id_ambiente DECIMAL(18,0) PRIMARY KEY,
 descripcion VARCHAR(100)
 )
 GO
-DROP TABLE IF EXISTS dim_rango_m2
+DROP TABLE IF EXISTS GESTIONATE.dim_rango_m2
 GO
-CREATE TABLE dim_rango_m2( 
+CREATE TABLE GESTIONATE.dim_rango_m2( 
 id_rango_m2 DECIMAL(18,0) PRIMARY KEY,
 descripcion VARCHAR(100)
 )
 GO
-DROP TABLE IF EXISTS dim_tipo_operacion
+DROP TABLE IF EXISTS GESTIONATE.dim_tipo_operacion
 GO
-CREATE TABLE dim_tipo_operacion( 
+CREATE TABLE GESTIONATE.dim_tipo_operacion( 
 id_tipo_operacion DECIMAL(18,0) PRIMARY KEY,
 descripcion VARCHAR(100)
 )
 GO
-DROP TABLE IF EXISTS dim_tipo_moneda
+DROP TABLE IF EXISTS GESTIONATE.dim_tipo_moneda
 GO
-CREATE TABLE dim_tipo_moneda( 
+CREATE TABLE GESTIONATE.dim_tipo_moneda( 
 id_tipo_moneda DECIMAL(18,0) PRIMARY KEY,
 descripcion VARCHAR(100)
 )
 GO
-DROP TABLE IF EXISTS hecho
-CREATE TABLE hecho(
-id_tiempo DECIMAL(18,0) FOREIGN KEY REFERENCES dim_tiempo,
-id_ubicacion DECIMAL(18,0) FOREIGN KEY REFERENCES dim_ubicacion,
-id_sucursal DECIMAL(18,0) FOREIGN KEY REFERENCES dim_sucursal,
-id_rango_etario DECIMAL(18,0) FOREIGN KEY REFERENCES dim_rango_etario,
-id_tipo_inmueble DECIMAL(18,0) FOREIGN KEY REFERENCES dim_tipo_inmueble,
-id_ambiente DECIMAL(18,0) FOREIGN KEY REFERENCES dim_ambiente,
-id_rango_m2 DECIMAL(18,0) FOREIGN KEY REFERENCES dim_rango_m2,
-id_tipo_operacion DECIMAL(18,0) FOREIGN KEY REFERENCES dim_tipo_operacion,
-id_tipo_moneda DECIMAL(18,0) FOREIGN KEY REFERENCES dim_tipo_moneda,
+DROP TABLE IF EXISTS GESTIONATE.hecho
+CREATE TABLE GESTIONATE.hecho(
+id_tiempo DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tiempo,
+id_ubicacion DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ubicacion,
+id_sucursal DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_sucursal,
+id_rango_etario DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_etario,
+id_tipo_inmueble DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_inmueble,
+id_ambiente DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ambiente,
+id_rango_m2 DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_m2,
+id_tipo_operacion DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_operacion,
+id_tipo_moneda DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_moneda,
 dias_totales_anuncio NUMERIC(18,2),
 monto_total_anuncio NUMERIC(18,2),
 cant_anuncios DECIMAL(18,0),
