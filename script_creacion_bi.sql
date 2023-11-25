@@ -100,6 +100,7 @@ descripcion_tipo_moneda VARCHAR(100)
 )
 GO
 DROP TABLE IF EXISTS GESTIONATE.dim_estado_anuncio
+GO
 CREATE TABLE GESTIONATE.dim_estado_anuncio (
 id_estado_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY,
 descripcion_estado_anuncio VARCHAR(100)
@@ -138,6 +139,7 @@ id_rango_m2
 )
 GO
 DROP TABLE IF EXISTS GESTIONATE.hecho_anuncio
+GO
 CREATE TABLE GESTIONATE.hecho_anuncio(
 id_tiempo DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tiempo,
 id_ubicacion DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ubicacion,
@@ -167,6 +169,7 @@ id_tipo_moneda
 )
 GO
 DROP TABLE IF EXISTS GESTIONATE.hecho_venta
+GO
 CREATE TABLE GESTIONATE.hecho_venta(
 id_tiempo DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tiempo,
 id_ubicacion DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ubicacion,
@@ -628,7 +631,6 @@ INNER JOIN GESTIONATE.dim_ubicacion U ON HA.id_ubicacion = U.id_ubicacion
 INNER JOIN GESTIONATE.dim_ambiente AMB ON HA.id_ambiente = AMB.id_ambiente
 GROUP BY TI_OP.descripcion_tipo_operacion, DT.cuatrimestre, DT.anio, U.barrio, AMB.descripcion_ambiente
 GO
-SELECT * FROM GESTIONATE.duracion_promedio_anuncio ORDER BY 1,2,3,4,5
 
 /*
     PRECIO PROMEDIO ANUNCIO
@@ -652,7 +654,6 @@ GROUP BY TI_OP.descripcion_tipo_operacion, DT.cuatrimestre, DT.anio, TI_IN.descr
          RM2.descripcion_rango_m2, AMB.descripcion_ambiente, M.descripcion_tipo_moneda
 
 GO
-SELECT * FROM GESTIONATE.precio_promedio_anuncio ORDER BY 1,2,3,4,5,6,7,8
 
 /*
     BARRIOS MAS ELEGIDOS
