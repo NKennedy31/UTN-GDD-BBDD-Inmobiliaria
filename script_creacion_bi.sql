@@ -3,13 +3,34 @@ GO
 /*
 CREACION DE DIMENSIONES Y TABLA DE HECHO
 */
-DROP TABLE IF EXISTS GESTIONATE.hecho
-GO
 DROP TABLE IF EXISTS GESTIONATE.hecho_alquiler
 GO
-DROP TABLE IF EXISTS GESTIONATE.dim_tiempo
-GO
 DROP TABLE IF EXISTS GESTIONATE.hecho_anuncio
+GO
+DROP TABLE IF EXISTS GESTIONATE.hecho_venta
+GO
+
+
+DROP VIEW IF EXISTS GESTIONATE.porcentaje_operaciones_concretadas
+GO
+DROP VIEW IF EXISTS GESTIONATE.precio_promedio_anuncio
+GO
+DROP VIEW IF EXISTS GESTIONATE.precio_promedio_m2
+GO
+DROP VIEW IF EXISTS GESTIONATE.barrios_mas_elegidos
+GO
+DROP VIEW IF EXISTS GESTIONATE.duracion_promedio_anuncio
+GO
+DROP VIEW IF EXISTS GESTIONATE.porcentaje_incremento_alquiler
+GO
+DROP VIEW IF EXISTS GESTIONATE.porcentaje_incumplimiento_pagos_alquiler
+GO
+DROP VIEW IF EXISTS GESTIONATE.valor_promedio_comision
+GO
+DROP VIEW IF EXISTS GESTIONATE.monto_total_cierre_contrato
+GO
+
+DROP TABLE IF EXISTS GESTIONATE.dim_tiempo
 GO
 CREATE TABLE GESTIONATE.dim_tiempo( 
 id_tiempo DECIMAL(18,0) PRIMARY KEY IDENTITY,
@@ -61,7 +82,7 @@ DROP TABLE IF EXISTS GESTIONATE.dim_rango_m2
 GO
 CREATE TABLE GESTIONATE.dim_rango_m2( 
 id_rango_m2 DECIMAL(18,0) PRIMARY KEY IDENTITY,
-descripcion_rango_m2 VARCHAR(100)|
+descripcion_rango_m2 VARCHAR(100)
 )
 GO
 DROP TABLE IF EXISTS GESTIONATE.dim_tipo_operacion
@@ -78,40 +99,15 @@ id_tipo_moneda DECIMAL(18,0) PRIMARY KEY IDENTITY,
 descripcion_tipo_moneda VARCHAR(100)
 )
 GO
-
-CREATE TABLE GESTIONATE.hecho(
-id_tiempo DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tiempo,
-id_ubicacion DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ubicacion,
-id_sucursal DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_sucursal,
-id_rango_etario DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_etario,
-id_tipo_inmueble DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_inmueble,
-id_ambiente DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ambiente,
-id_rango_m2 DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_m2,
-id_tipo_operacion DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_operacion,
-id_tipo_moneda DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_moneda,
-cant_alquileres_dados_de_alta DECIMAL(18,0),
-cant_alquileres_activos DECIMAL(18,0),
-cant_pagos_alquiler DECIMAL(18,0),
-cant_pagos_vencidos_alquiler DECIMAL(18,0),
-pagos_alquiler_totales NUMERIC(18,2),
-pagos_venta_totales NUMERIC(18,2),
-cant_pagos_venta DECIMAL(18,0),
-cant_ventas_dadas_de_alta DECIMAL(18,0),
-pagos_cierre_totales NUMERIC(18,2),
-cant_pagos_cierre NUMERIC(18,2)
-PRIMARY KEY(
-id_tiempo,
-id_ubicacion,
-id_sucursal,
-id_rango_etario,
-id_tipo_inmueble,
-id_ambiente,
-id_rango_m2,
-id_tipo_operacion,
-id_tipo_moneda
-)
+DROP TABLE IF EXISTS GESTIONATE.dim_estado_anuncio
+CREATE TABLE GESTIONATE.dim_estado_anuncio (
+id_estado_anuncio DECIMAL(18,0) PRIMARY KEY IDENTITY,
+descripcion_estado_anuncio VARCHAR(100)
 )
 GO
+/*
+    CREACION TABLAS DE HECHO
+*/
 DROP TABLE IF EXISTS GESTIONATE.hecho_alquiler
 GO
 CREATE TABLE GESTIONATE.hecho_alquiler(
@@ -147,11 +143,11 @@ id_tiempo DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tiempo,
 id_ubicacion DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ubicacion,
 id_sucursal DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_sucursal,
 id_tipo_inmueble DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_inmueble,
-id_rango_etario_comprador DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_etario,
 id_rango_etario_agente DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_etario,
 id_ambiente DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ambiente,
 id_rango_m2 DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_m2,
 id_tipo_operacion DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_operacion,
+id_estado_anuncio DECIMAL (18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_estado_anuncio,
 id_tipo_moneda DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_moneda,
 dias_totales_anuncio NUMERIC(18,2),
 monto_total_anuncio NUMERIC(18,2),
@@ -161,11 +157,11 @@ id_tiempo,
 id_ubicacion,
 id_sucursal,
 id_tipo_inmueble,
-id_rango_etario_comprador,
 id_rango_etario_agente,
 id_ambiente,
 id_rango_m2,
 id_tipo_operacion,
+id_estado_anuncio,
 id_tipo_moneda
 )
 )
@@ -178,7 +174,10 @@ id_sucursal DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_sucursal,
 id_tipo_inmueble DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_inmueble,
 id_ambiente DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_ambiente,
 id_rango_m2 DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_m2,
-id_tipo_moneda DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_moneda,
+id_rango_etario_comprador DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_etario,
+id_rango_etario_agente DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_rango_etario,
+id_tipo_moneda_venta DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_moneda,
+id_tipo_moneda_pago DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.dim_tipo_moneda,
 pagos_venta_totales NUMERIC(18,2),
 cant_pagos_venta DECIMAL(18,0),
 cant_ventas_dadas_de_alta DECIMAL(18,0),
@@ -191,7 +190,10 @@ id_sucursal,
 id_tipo_inmueble,
 id_ambiente,
 id_rango_m2,
-id_tipo_moneda
+id_rango_etario_comprador,
+id_rango_etario_agente,
+id_tipo_moneda_venta,
+id_tipo_moneda_pago
 )
 )
 GO
@@ -345,6 +347,11 @@ SELECT TIOP.detalle FROM GESTIONATE.tipo_operacion TIOP
 DELETE FROM GESTIONATE.dim_tipo_moneda
 INSERT INTO GESTIONATE.dim_tipo_moneda (descripcion_tipo_moneda)
 SELECT M.detalle FROM GESTIONATE.moneda M
+
+DELETE FROM GESTIONATE.dim_estado_anuncio
+INSERT INTO GESTIONATE.dim_estado_anuncio (descripcion_estado_anuncio)
+SELECT DISTINCT EA.detalle FROM GESTIONATE.estado_anuncio EA
+
 END
 GO
 EXEC GESTIONATE.cargar_dimensiones
@@ -428,7 +435,13 @@ AS BEGIN
 RETURN (SELECT TOP 1 id_tipo_moneda FROM GESTIONATE.dim_tipo_moneda WHERE descripcion_tipo_moneda=@detalle)
 END
 GO
-
+DROP FUNCTION IF EXISTS GESTIONATE.obtener_estado_anuncio_id
+GO
+CREATE FUNCTION GESTIONATE.obtener_estado_anuncio_id(@detalle VARCHAR(100)) RETURNS DECIMAL(18,0)
+AS BEGIN
+RETURN (SELECT TOP 1 id_estado_anuncio FROM GESTIONATE.dim_estado_anuncio WHERE descripcion_estado_anuncio=@detalle)
+END
+GO
 DROP FUNCTION IF EXISTS GESTIONATE.obtener_tiempo_anterior
 GO
 CREATE FUNCTION GESTIONATE.obtener_tiempo_anterior(@tiempo_id DECIMAL(18,0)) RETURNS DECIMAL(18,0)
@@ -442,12 +455,13 @@ ORDER BY DT.anio DESC, DT.mes DESC)
 END
 GO
 
+
 /*
 	Llenado Hechos
 */
-
+DELETE FROM GESTIONATE.hecho_anuncio WHERE 1=1
 INSERT INTO GESTIONATE.hecho_anuncio (id_tiempo, id_ubicacion, id_sucursal, id_tipo_inmueble, id_ambiente, id_rango_m2,
-id_tipo_operacion, id_tipo_moneda, dias_totales_anuncio, monto_total_anuncio, cant_anuncios)
+id_tipo_operacion, id_rango_etario_agente, id_tipo_moneda,id_estado_anuncio, dias_totales_anuncio, monto_total_anuncio, cant_anuncios)
 SELECT
 GESTIONATE.obtener_tiempo_id(A.fecha_publicacion),
 GESTIONATE.obtener_ubicacion_id(P.nombre, L.nombre, B.nombre),
@@ -456,7 +470,9 @@ GESTIONATE.obtener_tipo_inmueble_id(TI.detalle),
 GESTIONATE.obtener_ambiente_id(AMB.detalle),
 GESTIONATE.obtener_rango_m2_id(I.superficie_total),
 GESTIONATE.obtener_tipo_operacion_id(TI_OP.detalle),
+GESTIONATE.obtener_rango_etario_id(AG.fecha_nacimiento),
 GESTIONATE.obtener_tipo_moneda_id(M.detalle),
+GESTIONATE.obtener_estado_anuncio_id(EA.detalle),
 SUM(DATEDIFF(DAY, A.fecha_publicacion, A.fecha_finalizacion)) dias_totales_anuncio,
 SUM(A.precio) monto_total_anuncio,
 COUNT(DISTINCT A.id_anuncio) cant_anuncios
@@ -485,17 +501,14 @@ INNER JOIN GESTIONATE.tipo_operacion TI_OP ON
 A.id_tipo_operacion = TI_OP.id_tipo_operacion
 INNER JOIN GESTIONATE.moneda M ON
 A.id_moneda = M.id_moneda
-GROUP BY GESTIONATE.obtener_tiempo_id(A.fecha_publicacion), P.nombre, L.nombre, B.nombre, S.nombre, TI.detalle, AMB.detalle,GESTIONATE.obtener_rango_m2_id(I.superficie_total), TI_OP.detalle, M.detalle
+INNER JOIN GESTIONATE.estado_anuncio EA ON
+A.id_estado_anuncio = EA.id_estado_anuncio
+GROUP BY GESTIONATE.obtener_tiempo_id(A.fecha_publicacion), P.nombre, L.nombre, B.nombre, S.nombre, TI.detalle, AMB.detalle,GESTIONATE.obtener_rango_etario_id(AG.fecha_nacimiento),
+         GESTIONATE.obtener_rango_m2_id(I.superficie_total), TI_OP.detalle, M.detalle,GESTIONATE.obtener_estado_anuncio_id(EA.detalle)
 
 
 /*
-cant_alquileres_dados_de_alta DECIMAL(18,0),
-cant_alquileres_activos DECIMAL(18,0),
-cant_pagos_alquiler DECIMAL(18,0),
-cant_pagos_vencidos_alquiler DECIMAL(18,0),
-pagos_alquiler_totales NUMERIC(18,2),
-comisiones_total NUMERIC(18,2),
-ultimo_pago NUMERIC(18,2)
+    LLENADO HECHO ALQUILER
 */
 
 DELETE FROM GESTIONATE.hecho_alquiler WHERE 1=1
@@ -542,8 +555,59 @@ GROUP BY
     GESTIONATE.obtener_rango_etario_id(INQ.fecha_nacimiento),
     GESTIONATE.obtener_rango_etario_id(AG.fecha_nacimiento);
 
+/*
+    HECHO VENTA
+pagos_venta_totales NUMERIC(18,2),
+cant_pagos_venta DECIMAL(18,0),
+cant_ventas_dadas_de_alta DECIMAL(18,0),
+comisiones_total NUMERIC(18,2),
+m2_totales NUMERIC(18,2)
+*/
 
 
+DELETE FROM GESTIONATE.hecho_venta WHERE 1=1
+INSERT INTO GESTIONATE.hecho_venta (id_tiempo, id_ubicacion, id_sucursal, id_tipo_inmueble, id_ambiente, id_rango_m2,id_rango_etario_agente,id_rango_etario_comprador,
+id_tipo_moneda_venta,id_tipo_moneda_pago,cant_pagos_venta, cant_ventas_dadas_de_alta, pagos_venta_totales, comisiones_total, m2_totales)
+SELECT
+    GESTIONATE.obtener_tiempo_id(V.fecha_venta),
+    GESTIONATE.obtener_ubicacion_id(P.nombre, L.nombre, B.nombre),
+    GESTIONATE.obtener_sucursal_id(S.nombre),
+    GESTIONATE.obtener_tipo_inmueble_id(TI.detalle),
+    GESTIONATE.obtener_ambiente_id(AMB.detalle),
+    GESTIONATE.obtener_rango_m2_id(I.superficie_total),
+    GESTIONATE.obtener_rango_etario_id(AG.fecha_nacimiento),
+    GESTIONATE.obtener_rango_etario_id(C.fecha_nacimiento),
+    GESTIONATE.obtener_tipo_moneda_id(MV.detalle),
+    GESTIONATE.obtener_tipo_moneda_id(MP.detalle),
+    COUNT(DISTINCT PAG_VEN.id_pago) AS cant_pagos_venta,
+    COUNT(DISTINCT V.id_venta) AS cant_ventas_dadas_de_alta,
+    SUM(PAG_VEN.importe) AS pagos_venta_totales,
+    SUM(V.comision_inmobiliaria) AS comisiones_total,
+    SUM(I.superficie_total) AS m2_totales
+
+FROM
+    GESTIONATE.venta V
+INNER JOIN GESTIONATE.anuncio AN ON V.id_anuncio = AN.id_anuncio
+INNER JOIN GESTIONATE.inmueble I ON AN.id_inmueble = I.id_inmueble
+INNER JOIN GESTIONATE.tipo_inmueble TI ON I.id_tipo_inmueble = TI.id_tipo_inmueble
+INNER JOIN GESTIONATE.ambiente AMB ON I.id_ambiente = AMB.id_ambiente
+INNER JOIN GESTIONATE.direccion D ON I.codigo_direccion = D.id_direccion
+INNER JOIN GESTIONATE.barrio B ON D.codigo_barrio = B.id_barrio
+INNER JOIN GESTIONATE.localidad L ON D.codigo_localidad = L.id_localidad
+INNER JOIN GESTIONATE.provincia P ON D.codigo_provincia = P.id_provincia
+INNER JOIN GESTIONATE.comprador C ON V.id_comprador = C.id_comprador
+INNER JOIN GESTIONATE.agente AG ON V.id_agente = AG.id_agente
+INNER JOIN GESTIONATE.pago_venta PAG_VEN ON V.id_venta = PAG_VEN.id_venta
+INNER JOIN GESTIONATE.sucursal S ON AG.codigo_sucursal  = S.id_sucursal
+INNER JOIN GESTIONATE.moneda MV ON V.id_moneda = MV.id_moneda
+INNER JOIN GESTIONATE.moneda MP ON PAG_VEN.id_moneda = MP.id_moneda
+GROUP BY
+    GESTIONATE.obtener_tiempo_id(V.fecha_venta), P.nombre, L.nombre, B.nombre, S.nombre, TI.detalle,
+    AMB.detalle, GESTIONATE.obtener_rango_m2_id(I.superficie_total),
+    GESTIONATE.obtener_rango_etario_id(C.fecha_nacimiento),
+    GESTIONATE.obtener_rango_etario_id(AG.fecha_nacimiento),
+    GESTIONATE.obtener_tipo_moneda_id(MV.detalle),
+    GESTIONATE.obtener_tipo_moneda_id(MP.detalle);
 /*
 	Creacion Vistas
 */
@@ -671,30 +735,31 @@ GO
 DROP VIEW IF EXISTS GESTIONATE.precio_promedio_m2
 GO
 CREATE VIEW GESTIONATE.precio_promedio_m2 AS
-SELECT DT.anio, DT.cuatrimestre, TI_IN.descripcion_tipo_inmueble tipo_inmueble,
+SELECT DT.anio, DT.cuatrimestre, TI_IN.descripcion_tipo_inmueble tipo_inmueble, U.localidad,
 SUM(HV.pagos_venta_totales) / SUM(HV.m2_totales) precio_promedio_m2
 FROM GESTIONATE.hecho_venta HV
 INNER JOIN GESTIONATE.dim_tiempo DT ON HV.id_tiempo = DT.id_tiempo
 INNER JOIN GESTIONATE.dim_tipo_inmueble TI_IN ON HV.id_tipo_inmueble = TI_IN.id_tipo_inmueble
-GROUP BY DT.anio, DT.cuatrimestre, TI_IN.descripcion_tipo_inmueble
+INNER JOIN GESTIONATE.dim_ubicacion U ON HV.id_ubicacion = U.id_ubicacion
+GROUP BY DT.anio, DT.cuatrimestre, TI_IN.descripcion_tipo_inmueble, U.localidad
 GO
 
 DROP VIEW IF EXISTS GESTIONATE.valor_promedio_comision
 GO
 CREATE VIEW GESTIONATE.valor_promedio_comision AS
 
-(SELECT DT.anio, DT.mes, 'Venta' tipo_operacion, S.nombre, SUM(HV.comisiones_total)/SUM(HV.cant_ventas_dadas_de_alta) promedio_comision
+(SELECT DT.anio, DT.cuatrimestre, 'Venta' tipo_operacion, S.nombre, SUM(HV.comisiones_total)/SUM(HV.cant_ventas_dadas_de_alta) promedio_comision
  FROM GESTIONATE.hecho_venta HV
 INNER JOIN GESTIONATE.dim_tiempo DT ON HV.id_tiempo = DT.id_tiempo
 INNER JOIN GESTIONATE.dim_sucursal S ON HV.id_sucursal = S.id_sucursal
- GROUP BY DT.anio, DT.mes, S.nombre
+ GROUP BY DT.anio, DT.cuatrimestre, S.nombre
 )
 UNION
-(SELECT DT.anio, DT.mes, 'Alquiler' tipo_operacion, S.nombre, SUM(HA.comisiones_total)/SUM(HA.cant_alquileres_dados_de_alta) promedio_comision
+(SELECT DT.anio, DT.cuatrimestre, 'Alquiler' tipo_operacion, S.nombre, SUM(HA.comisiones_total)/SUM(HA.cant_alquileres_dados_de_alta) promedio_comision
  FROM GESTIONATE.hecho_alquiler HA
 INNER JOIN GESTIONATE.dim_tiempo DT ON HA.id_tiempo = DT.id_tiempo
 INNER JOIN GESTIONATE.dim_sucursal S ON HA.id_sucursal = S.id_sucursal
-    GROUP BY DT.anio, DT.mes, S.nombre
+    GROUP BY DT.anio, DT.cuatrimestre, S.nombre
 )
 GO
 
@@ -702,9 +767,31 @@ GO
 DROP VIEW IF EXISTS GESTIONATE.porcentaje_operaciones_concretadas
 GO
 CREATE VIEW GESTIONATE.porcentaje_operaciones_concretadas AS
-SELECT DT.anio FROM GESTIONATE.hecho_anuncio HA
+SELECT DT.anio, S.nombre sucursal, RE.descripcion_rango_etario rango_etario,
+100.0 * (SELECT SUM(HA2.cant_anuncios) FROM GESTIONATE.hecho_anuncio HA2
+INNER JOIN GESTIONATE.dim_tiempo DT2 ON HA2.id_tiempo = DT2.id_tiempo
+INNER JOIN GESTIONATE.dim_estado_anuncio EA ON HA2.id_estado_anuncio = EA.id_estado_anuncio
+WHERE DT2.anio = DT.anio AND HA2.id_sucursal = HA.id_sucursal AND HA2.id_rango_etario_agente = HA.id_rango_etario_agente
+AND EA.descripcion_estado_anuncio != 'Finalizado'
+) / SUM(HA.cant_anuncios) porcentaje_operaciones_concretadas
+FROM GESTIONATE.hecho_anuncio HA
 INNER JOIN GESTIONATE.dim_tiempo DT ON HA.id_tiempo = DT.id_tiempo
+INNER JOIN GESTIONATE.dim_sucursal S ON HA.id_sucursal = S.id_sucursal
+INNER JOIN GESTIONATE.dim_rango_etario RE ON HA.id_rango_etario_agente = RE.id_rango_etario
+GROUP BY DT.anio, S.nombre,HA.id_sucursal, RE.descripcion_rango_etario, HA.id_rango_etario_agente
+GO
 
-GROUP BY DT.anio
-
+DROP VIEW IF EXISTS GESTIONATE.monto_total_cierre_contrato
+GO
+CREATE VIEW GESTIONATE.monto_total_cierre_contrato AS
+SELECT DT.cuatrimestre, S.nombre sucursal, M.descripcion_tipo_moneda moneda, TI_OP.descripcion_tipo_operacion tipo_operacion,
+SUM(HA.monto_total_anuncio) monto_cierre
+FROM GESTIONATE.hecho_anuncio HA
+INNER JOIN GESTIONATE.dim_tiempo DT ON HA.id_tiempo = DT.id_tiempo
+INNER JOIN GESTIONATE.dim_sucursal S ON HA.id_sucursal = S.id_sucursal
+INNER JOIN GESTIONATE.dim_tipo_moneda M ON HA.id_tipo_moneda = M.id_tipo_moneda
+INNER JOIN GESTIONATE.dim_tipo_operacion TI_OP ON HA.id_tipo_operacion = TI_OP.id_tipo_operacion
+INNER JOIN GESTIONATE.dim_estado_anuncio EA ON HA.id_estado_anuncio = EA.id_estado_anuncio
+WHERE EA.descripcion_estado_anuncio != 'Finalizado'
+GROUP BY DT.cuatrimestre, S.nombre,M.id_tipo_moneda,M.descripcion_tipo_moneda, TI_OP.descripcion_tipo_operacion
 GO
