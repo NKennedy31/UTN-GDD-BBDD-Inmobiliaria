@@ -6,14 +6,6 @@ GO
 -- ELIMINACION de TABLAS Y VISTAS --
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! --
 
-DROP TABLE IF EXISTS GESTIONATE.BI_hecho_alquiler
-GO
-DROP TABLE IF EXISTS GESTIONATE.BI_hecho_anuncio
-GO
-DROP TABLE IF EXISTS GESTIONATE.BI_hecho_venta
-GO
-
-
 DROP VIEW IF EXISTS GESTIONATE.porcentaje_operaciones_concretadas
 GO
 DROP VIEW IF EXISTS GESTIONATE.precio_promedio_anuncio
@@ -33,6 +25,14 @@ GO
 DROP VIEW IF EXISTS GESTIONATE.monto_total_cierre_contrato
 GO
 
+DROP TABLE IF EXISTS GESTIONATE.BI_hecho_alquiler
+GO
+DROP TABLE IF EXISTS GESTIONATE.BI_hecho_anuncio
+GO
+DROP TABLE IF EXISTS GESTIONATE.BI_hecho_venta
+GO
+DROP TABLE IF EXISTS GESTIONATE.BI_hecho_pago_alquiler
+GO
 
 -- !!!!!!!!!!!!!!!!!!!!!!! --
 -- CREACION de DIMENSIONES --
@@ -144,8 +144,7 @@ cant_alquileres_dados_de_alta DECIMAL(18,0),
 cant_pagos_alquiler DECIMAL(18,0),
 cant_pagos_vencidos_alquiler DECIMAL(18,0),
 pagos_alquiler_totales NUMERIC(18,2),
-comisiones_total NUMERIC(18,2),
-ultimo_pago_activo NUMERIC(18,2)
+comisiones_total NUMERIC(18,2)
 PRIMARY KEY(
 id_tiempo,
 id_ubicacion,
@@ -155,6 +154,16 @@ id_rango_etario_agente,
 id_tipo_inmueble,
 id_ambiente,
 id_rango_m2)
+)
+GO
+
+DROP TABLE IF EXISTS GESTIONATE.BI_hecho_pago_alquiler
+GO
+CREATE TABLE GESTIONATE.BI_hecho_pago_alquiler (
+id_tiempo DECIMAL(18,0) FOREIGN KEY REFERENCES GESTIONATE.BI_dim_tiempo,
+porcentaje_aumento DECIMAL(18,2)
+PRIMARY KEY (
+id_tiempo)
 )
 GO
 
@@ -552,7 +561,7 @@ GROUP BY GESTIONATE.obtener_tiempo_id(A.fecha_publicacion), P.nombre, L.nombre, 
 -- HECHO ALQUILER
 DELETE FROM GESTIONATE.BI_hecho_alquiler WHERE 1=1
 INSERT INTO GESTIONATE.BI_hecho_alquiler (id_tiempo, id_ubicacion, id_sucursal, id_tipo_inmueble, id_ambiente, id_rango_m2,id_rango_etario_agente,id_rango_etario_inquilino,
-cant_alquileres_dados_de_alta, cant_pagos_alquiler, cant_pagos_vencidos_alquiler, pagos_alquiler_totales, comisiones_total, ultimo_pago_activo)
+cant_alquileres_dados_de_alta, cant_pagos_alquiler, cant_pagos_vencidos_alquiler, pagos_alquiler_totales, comisiones_total)
 SELECT
     GESTIONATE.obtener_tiempo_id(ALQ.fecha_inicio),
     GESTIONATE.obtener_ubicacion_id(P.nombre, L.nombre, B.nombre),
@@ -566,8 +575,7 @@ SELECT
     COUNT(DISTINCT PAG_ALQ.id_pago) AS cant_pagos_alquiler,
     SUM(CASE WHEN PAG_ALQ.fecha_pago > PAG_ALQ.fecha_fin_periodo THEN 1 ELSE 0 END) AS cant_pagos_vencidos_alquiler,
     SUM(PAG_ALQ.importe) AS pagos_alquiler_totales,
-    SUM(ALQ.comision) AS comisiones_total,
-    MAX(PAG_ALQ2.importe) AS ultimo_pago_activo
+    SUM(ALQ.comision) AS comisiones_total
 FROM
     GESTIONATE.alquiler ALQ
 INNER JOIN GESTIONATE.inmueble I ON ALQ.id_inmueble = I.id_inmueble
@@ -581,18 +589,28 @@ INNER JOIN GESTIONATE.sucursal S ON ALQ.id_sucursal = S.id_sucursal
 INNER JOIN GESTIONATE.inquilino INQ ON ALQ.id_inquilino = INQ.id_inquilino
 INNER JOIN GESTIONATE.agente AG ON ALQ.id_agente = AG.id_agente
 INNER JOIN GESTIONATE.pago_alquiler PAG_ALQ ON ALQ.id_alquiler = PAG_ALQ.id_alquiler
-INNER JOIN GESTIONATE.estado_alquiler EST_ALQ ON ALQ.id_estado_alquiler = EST_ALQ.id_estado_alquiler
-LEFT JOIN GESTIONATE.pago_alquiler PAG_ALQ2 ON ALQ.id_alquiler = PAG_ALQ2.id_alquiler
-AND PAG_ALQ2.fecha_pago = (SELECT MAX(PAG_ALQ3.fecha_pago) FROM GESTIONATE.pago_alquiler PAG_ALQ3
-WHERE  PAG_ALQ3.id_alquiler = PAG_ALQ2.id_alquiler
-AND GESTIONATE.obtener_tiempo_id(PAG_ALQ3.fecha_pago) = GESTIONATE.obtener_tiempo_id(ALQ.fecha_inicio)
-)
-AND EST_ALQ.detalle = 'Activo'
 GROUP BY
     GESTIONATE.obtener_tiempo_id(ALQ.fecha_inicio), P.nombre, L.nombre, B.nombre, S.nombre, TI.detalle,
     AMB.detalle, GESTIONATE.obtener_rango_m2_id(I.superficie_total),
     GESTIONATE.obtener_rango_etario_id(INQ.fecha_nacimiento),
     GESTIONATE.obtener_rango_etario_id(AG.fecha_nacimiento);
+
+
+-- HECHO PAGO ALQUILER
+DELETE FROM GESTIONATE.BI_hecho_pago_alquiler WHERE 1=1
+INSERT INTO GESTIONATE.BI_hecho_pago_alquiler (id_tiempo, porcentaje_aumento)
+SELECT
+    GESTIONATE.obtener_tiempo_id(PAG_ALQ.fecha_pago),
+    SUM((PAG_ALQ.importe - PAG_ALQ2.importe) / PAG_ALQ2.importe*100) / COUNT(*)
+FROM
+    GESTIONATE.alquiler ALQ
+INNER JOIN GESTIONATE.pago_alquiler PAG_ALQ ON ALQ.id_alquiler = PAG_ALQ.id_alquiler
+AND PAG_ALQ.fecha_pago < ALQ.fecha_fin
+INNER JOIN GESTIONATE.pago_alquiler PAG_ALQ2 ON PAG_ALQ2.id_alquiler = PAG_ALQ.id_alquiler
+AND GESTIONATE.obtener_tiempo_anterior(GESTIONATE.obtener_tiempo_id(PAG_ALQ.fecha_pago)) = GESTIONATE.obtener_tiempo_id(PAG_ALQ2.fecha_pago)
+AND PAG_ALQ.importe - PAG_ALQ2.importe > 0
+GROUP BY GESTIONATE.obtener_tiempo_id(PAG_ALQ.fecha_pago);
+
 
 -- HECHO VENTA
 DELETE FROM GESTIONATE.BI_hecho_venta WHERE 1=1
@@ -740,13 +758,9 @@ GO
 DROP VIEW IF EXISTS GESTIONATE.porcentaje_incremento_alquiler
 GO
 CREATE VIEW GESTIONATE.porcentaje_incremento_alquiler AS
-SELECT DT.anio, DT.mes, 
-100.0 * (SUM(HALQ.ultimo_pago_activo)/SUM(HALQ2.ultimo_pago_activo) - 1) incremento_alquiler
-FROM GESTIONATE.BI_hecho_alquiler HALQ
-INNER JOIN GESTIONATE.BI_dim_tiempo DT ON HALQ.id_tiempo = DT.id_tiempo
-INNER JOIN GESTIONATE.BI_dim_tiempo DT2 ON DT2.id_tiempo = GESTIONATE.obtener_tiempo_anterior(DT.id_tiempo)
-INNER JOIN GESTIONATE.BI_hecho_alquiler HALQ2 ON HALQ2.id_tiempo = DT2.id_tiempo
-GROUP BY DT.anio, DT.mes
+SELECT DT.anio, DT.mes, HPAG_ALQ.porcentaje_aumento porcentaje_incremento
+FROM GESTIONATE.BI_hecho_pago_alquiler HPAG_ALQ
+INNER JOIN GESTIONATE.BI_dim_tiempo DT ON HPAG_ALQ.id_tiempo = DT.id_tiempo
 GO
 
 
